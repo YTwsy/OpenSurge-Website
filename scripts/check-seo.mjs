@@ -2,7 +2,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join, relative } from "node:path";
 
 const outputDirectory = new URL("../out/", import.meta.url);
-const expectedIndexablePages = 30;
+const expectedIndexablePages = 36;
 
 async function walk(directory) {
   const entries = await readdir(directory);

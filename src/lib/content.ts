@@ -108,6 +108,36 @@ const pixelProxySmoke = `curl --proxy socks5h://192.168.1.23:1080 https://api.ip
 # HTTP alternative:
 curl --proxy http://192.168.1.23:8080 https://api.ipify.org`;
 
+const systemProxyInspection = `# Replace Wi-Fi if the upstream network service uses another name.
+networksetup -getwebproxy "Wi-Fi"
+networksetup -getsecurewebproxy "Wi-Fi"
+networksetup -getautoproxyurl "Wi-Fi"
+networksetup -getproxyautodiscovery "Wi-Fi"`;
+
+const importedProfileExample = `proxies:
+  - name: "LAN-SOCKS"
+    type: socks5
+    server: 192.168.1.23
+    port: 1080
+    udp: true
+
+proxy-groups:
+  - name: "Gateway"
+    type: select
+    proxies:
+      - "LAN-SOCKS"
+      - DIRECT
+
+rules:
+  - DOMAIN-SUFFIX,example.com,Gateway
+  - MATCH,DIRECT
+
+dns:
+  nameserver:
+    - https://1.1.1.1/dns-query
+  fake-ip-filter:
+    - "*.lan"`;
+
 export const sectionCopy: Record<Locale, Record<SectionKey, SectionCopy>> = {
   en: {
     features: {
@@ -858,6 +888,276 @@ const englishPages: ContentPage[] = [
       },
     ],
   },
+  {
+    section: "guides",
+    slug: "dhcp-takeover-recovery",
+    locale: "en",
+    eyebrow: "Advanced automatic onboarding",
+    title: "Take over LAN DHCP without losing the recovery path",
+    description:
+      "Prepare, start, validate, stop, and safely recover a same-LAN OpenSurge DHCP takeover without treating one lease as proof of the whole gateway.",
+    intro:
+      "Same-LAN DHCP takeover automatically points clients at the Mac for IPv4 gateway and DNS service, but it temporarily removes the main router's DHCP safety net. OpenSurge therefore makes recovery state part of the operation, not a note to remember later.",
+    image: "/topologies/dhcp-takeover.svg",
+    imageAlt: "OpenSurge replacing the main router as the LAN DHCP and gateway service",
+    imageFit: "contain",
+    keywords: [
+      "LAN DHCP takeover",
+      "OpenSurge network recovery",
+      "Mac DHCP server",
+      "same LAN gateway recovery",
+    ],
+    updatedAt: "2026-08-22",
+    readingTime: "8 min read",
+    sections: [
+      {
+        heading: "Confirm the LAN is ready for one DHCP authority",
+        paragraphs: [
+          "Use this mode only when the Mac and intended clients share the same IPv4 broadcast domain, client isolation does not block them, and you can disable and later restore the main router's DHCP server. The Mac needs a stable address on that LAN and should remain powered, awake, and reachable throughout the change.",
+          "Start with one recoverable test client. If you only need a few devices, same-LAN manual gateway mode keeps router DHCP enabled and has a smaller failure radius.",
+        ],
+        bullets: [
+          "Verify the Mac and one client can reach each other on the same IPv4 subnet.",
+          "Identify the router administration path before changing DHCP.",
+          "Exclude the router, Mac, and protected static addresses from the OpenSurge pool.",
+          "Treat downstream IPv6 as a separate experimental decision; shared-LAN takeover also requires eliminating competing RA/DHCPv6 or enforcing RA Guard.",
+        ],
+      },
+      {
+        heading: "Prepare the offline recovery path first",
+        paragraphs: [
+          "In Network Settings, choose Same-LAN DHCP takeover, review the auto-filled interface, real subnet prefix, Mac gateway IPv4, upstream router/DNS, protected addresses, and DHCP pool, then save the configuration. Select Save network snapshot and offline recovery card before disabling anything on the router.",
+          "Follow the guided step that moves the Mac to the recorded fixed IPv4 and wait for OpenSurge to read the service back successfully. Keep the recovery card somewhere you can open without working LAN DNS; it records the router address and the manual settings needed to regain access.",
+        ],
+        resources: [
+          {
+            label: "OpenSurge app user guide",
+            description: "The current packaged-app workflow for setup, takeover, stop, and recovery.",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/app-user-guide.md",
+          },
+        ],
+      },
+      {
+        heading: "Start, then prove DHCP, DNS, and TUN separately",
+        paragraphs: [
+          "Disable the main router's DHCP server only when prompted, return to OpenSurge, and run the DHCP OFFER probe. Continue after the expected state is confirmed, start OpenSurge, then disconnect and reconnect the test client so it requests a fresh lease.",
+          "A lease alone proves only that a DHCP server answered. Check that the client received the intended address, uses the Mac as IPv4 default gateway and DNS, resolves a fresh name, reaches HTTPS without an explicit proxy, and leaves the expected client/TUN and outbound evidence in OpenSurge.",
+        ],
+        bullets: [
+          "Lease: the address belongs to the configured pool or reservation.",
+          "Gateway and DNS: both point to the Mac's configured IPv4 for this topology.",
+          "Data plane: fresh DNS and HTTPS succeed without configuring a client proxy.",
+          "Attribution: the connection view shows the client and the outbound chain actually used.",
+        ],
+      },
+      {
+        heading: "Stop through the recovery state machine",
+        paragraphs: [
+          "Complete client validation, or explicitly record that it was skipped, before selecting Stop OpenSurge. Re-enable router DHCP when prompted, return to OpenSurge, run the DHCP OFFER probe, then restore automatic DHCP on the Mac or explicitly finish while keeping its static IPv4.",
+          "Do not equate a stopped gateway with a restored LAN, and do not quit while recovery remains pending. If you abandon takeover after the Mac became static but before the gateway became active, use Abandon DHCP takeover: OpenSurge returns the Mac to automatic DHCP only when an offer is visible; otherwise it can finish in an explicit keep-static state without claiming that automatic client recovery succeeded.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Does receiving an OpenSurge DHCP lease prove takeover works?",
+        answer:
+          "No. It proves the lease step. Gateway, DNS, proxy-free HTTPS, TUN observation, and the intended outbound still need separate evidence from the client.",
+      },
+      {
+        question: "Can I quit after the gateway says stopped?",
+        answer:
+          "Not while recovery is pending. Restore router DHCP, confirm an offer, and finish the Mac automatic-DHCP or explicit keep-static branch first.",
+      },
+      {
+        question: "Should a first-time user choose DHCP takeover?",
+        answer:
+          "Usually start with same-LAN manual gateway for one device. Choose DHCP takeover when automatic LAN onboarding is worth the wider operational impact and the router recovery path is understood.",
+      },
+    ],
+  },
+  {
+    section: "docs",
+    slug: "local-mac-routing-system-proxy",
+    locale: "en",
+    eyebrow: "Mac-local traffic",
+    title: "Coordinate the Mac's egress mode and macOS system proxy",
+    description:
+      "Understand OpenSurge Rule, Global, and Direct modes on the gateway Mac, and when the separate HTTP/HTTPS system-proxy compatibility layer should be enabled.",
+    intro:
+      "OpenSurge has two intentionally separate Mac-local controls: an egress mode for new connections entering its data plane, and an off-by-default system-proxy compatibility option for applications affected by TUN-only DNS conflicts.",
+    image: "/screenshots/devices.png",
+    imageAlt: "OpenSurge device page with Mac-local routing and downstream policy controls",
+    keywords: [
+      "OpenSurge Mac local routing",
+      "macOS system proxy mihomo",
+      "SafeDNS TUN conflict",
+      "Mac Rule Global Direct",
+    ],
+    updatedAt: "2026-08-22",
+    readingTime: "7 min read",
+    sections: [
+      {
+        heading: "Keep local mode separate from downstream policy",
+        paragraphs: [
+          "The Devices page Rule / Global / Direct switch affects only new Mac connections that enter OpenSurge through TUN or the local mixed-port. It does not change mihomo's top-level rule mode, DHCP/DNS, a downstream device selector, or an already established connection.",
+          "Loopback, LAN/private, link-local, CGNAT, and multicast destinations stay DIRECT before the mode overlay so selecting a remote exit does not remove the local management path.",
+        ],
+        bullets: [
+          "Rule continues through the imported or managed gateway rules.",
+          "Global sends Mac-local TCP through its dedicated hidden selector.",
+          "Direct sends matching Mac-local traffic to DIRECT.",
+          "If Global cannot confirm UDP support, Mac-local UDP fails closed with REJECT instead of silently falling through.",
+        ],
+      },
+      {
+        heading: "Enable system-proxy coordination only for its compatibility case",
+        paragraphs: [
+          "The local mode switch does not modify System Settings → Network → Proxies. If SafeDNS, DNS Proxy, a content filter, or another Network Extension breaks local-Mac DNS or connectivity under TUN alone, the separate Mac local system-proxy coordination option can temporarily point HTTP and HTTPS at 127.0.0.1:<mixed-port>.",
+          "The option requires TUN and remains off by default. It affects only Mac apps that honor HTTP/HTTPS system proxy settings; it does not own SOCKS, PAC, auto-discovery, bypass domains, downstream traffic, or traffic that never enters OpenSurge.",
+        ],
+      },
+      {
+        heading: "Understand the fail-closed ownership contract",
+        paragraphs: [
+          "Before changing the host, OpenSurge resolves the current upstream network service, rejects active HTTP/HTTPS proxy, PAC, auto-discovery, or authenticated-proxy conflicts, and saves the original HTTP/HTTPS state. It writes the temporary proxy only after mihomo/TUN and the gateway services are ready.",
+          "Stop restores the snapshot before stopping mihomo. Startup rollback, a failed mihomo replacement, and interrupted-runtime reconciliation follow the same ordering. Manual HTTP/HTTPS changes made during the takeover are replaced by the saved snapshot on recovery, so do not use this switch as a general proxy-settings editor.",
+        ],
+        codeBlocks: [
+          {
+            label: "Read the current proxy state without changing it",
+            language: "shell",
+            code: systemProxyInspection,
+          },
+        ],
+        resources: [
+          {
+            label: "Mac-local routing reference",
+            description: "Detailed identity, selector, UDP, and downstream-isolation semantics.",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/local-mac-routing.md",
+          },
+          {
+            label: "System-proxy coordination contract",
+            description: "Technical write and recovery boundaries for the compatibility option.",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/agent-wiki/wiki/concepts/local-system-proxy-coordination.md",
+          },
+        ],
+      },
+      {
+        heading: "Verify with fresh connections and a stop check",
+        paragraphs: [
+          "After changing Rule, Global, or Direct, start a new request and use Connectivity or Connections to inspect the matched rule and actual outbound. The Control Service connectivity probe is Mac-local mixed-port evidence, not proof of a downstream-device path.",
+          "When testing system-proxy coordination, record the pre-start HTTP/HTTPS state, reproduce the TUN-only application failure, enable the option, verify the target application, then stop OpenSurge and confirm the original proxy state was restored. A normal TUN test with the switch off does not prove the compatibility case.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Does Global mode send every device through one node?",
+        answer:
+          "No. It is global only for qualifying Mac-local traffic. Downstream devices continue through their own device policy or gateway rules.",
+      },
+      {
+        question: "Should system-proxy coordination always be enabled with TUN?",
+        answer:
+          "No. Leave it off unless a Mac application that honors HTTP/HTTPS proxy settings is affected by a known TUN-only or Network Extension conflict.",
+      },
+      {
+        question: "Why can startup be rejected before anything changes?",
+        answer:
+          "OpenSurge refuses to overwrite active HTTP/HTTPS proxy, PAC, auto-discovery, or authenticated-proxy state because it cannot safely claim ownership of those settings.",
+      },
+    ],
+  },
+  {
+    section: "docs",
+    slug: "imported-mihomo-config",
+    locale: "en",
+    eyebrow: "Source and profile workflow",
+    title: "Import a mihomo configuration without giving up gateway safety",
+    description:
+      "Use subscriptions and local mihomo YAML as OpenSurge sources while preserving their nodes, policy groups, rules, providers, and supported DNS policy.",
+    intro:
+      "Imported mode is an overlay, not raw pass-through: your mihomo profile contributes its proxy and rule ecosystem, while OpenSurge keeps ownership of the LAN, DNS listener, TUN, controller, runtime paths, and recovery-critical fields.",
+    image: "/screenshots/policies.png",
+    imageAlt: "OpenSurge policy groups created from an imported mihomo source",
+    keywords: [
+      "import mihomo config OpenSurge",
+      "mihomo subscription macOS gateway",
+      "Clash YAML OpenSurge",
+      "imported mihomo profile overlay",
+    ],
+    updatedAt: "2026-08-22",
+    readingTime: "8 min read",
+    sections: [
+      {
+        heading: "Import as a draft before changing the running gateway",
+        paragraphs: [
+          "In Sources, add an HTTPS subscription or local mihomo YAML and choose Import as draft. Structural validation must pass before the source can be selected for the next start or applied to a running gateway. A refresh creates another draft; it does not silently replace the applied version.",
+          "OpenSurge-managed snapshots carry digest, history, and apply state. Do not edit them in place. Use Export copy, edit the separate 0600 YAML under the exports directory, then import that file as a new local draft.",
+        ],
+        resources: [
+          {
+            label: "OpenSurge source workflow",
+            description: "Packaged-app steps for importing, exporting, refreshing, and applying a source.",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/app-user-guide.md",
+          },
+        ],
+      },
+      {
+        heading: "Know what the imported profile contributes",
+        paragraphs: [
+          "The imported profile contributes proxies, proxy-providers, proxy-groups, rule-providers, and rules. OpenSurge parses those sections as YAML nodes, so block and flow collections are supported, and it keeps rule order—including the requirement that no rules appear after a terminal MATCH.",
+          "The profile's DNS section is merged field by field. Resolver and filtering policy such as nameserver, nameserver-policy, proxy-server-nameserver, direct-nameserver, fake-ip-filter, and fallback settings can be retained because proxy hostnames may depend on them.",
+        ],
+      },
+      {
+        heading: "Know what OpenSurge continues to own",
+        paragraphs: [
+          "OpenSurge renders mixed-port, LAN binding, allow-lan, external-controller, selected-policy and fake-IP persistence, DNS enable/listen/fake-IP range, TUN routing, LAN exclusions, and runtime paths. Imported values cannot disable the gateway listener, replace its controller, or reintroduce unsupported transparent-proxy paths.",
+          "This boundary is why a desktop profile should be adapted as an imported source instead of copied over the generated runtime mihomo.yaml. The generated file is an applied artifact, not the editable source of truth.",
+        ],
+        codeBlocks: [
+          {
+            label: "Minimal imported sections to merge into a real profile",
+            language: "yaml",
+            code: importedProfileExample,
+          },
+        ],
+        resources: [
+          {
+            label: "mihomo profile overlay reference",
+            description: "Exact imported sections, gateway-owned fields, ordering, and validation gates.",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/agent-wiki/wiki/concepts/mihomo-profile-overlay.md",
+          },
+        ],
+      },
+      {
+        heading: "Apply transactionally, then inspect the real path",
+        paragraphs: [
+          "When the gateway is stopped, selecting a source updates desired state for the next start. When it is running, Apply and reload first validates the composed configuration, then performs a controlled gateway reload. A failed prevalidation leaves the current runtime untouched; OpenSurge records an imported-profile digest only after the new runtime starts successfully.",
+          "After application, inspect Policies and Providers, switch an applied Selector if needed, and generate new traffic. Node health and a valid YAML file are control-plane evidence; use Connections, matched rules, and an observed final egress to prove the traffic behavior you intended.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can I paste a complete desktop mihomo config over the runtime file?",
+        answer:
+          "No. Import it through Sources. The runtime file is generated, while OpenSurge must retain gateway-critical LAN, DNS, TUN, controller, and recovery ownership.",
+      },
+      {
+        question: "Will OpenSurge keep my proxy groups and rules?",
+        answer:
+          "Yes, when they are structurally valid and respect rule ordering and reserved OpenSurge namespaces. OpenSurge composes its local and device overlays around the imported sections.",
+      },
+      {
+        question: "Does a successful import prove the remote proxy works?",
+        answer:
+          "No. It proves the source can be composed. Test node health, generate a new business connection, and inspect the matched rule and actual outbound or exit separately.",
+      },
+    ],
+  },
 ];
 
 const chinesePages: ContentPage[] = [
@@ -1471,6 +1771,251 @@ const chinesePages: ContentPage[] = [
         question: "Pixel 自己可以成为 OpenSurge 下游设备吗？",
         answer:
           "可以，但会增加环路风险。让 Pixel 位于 Mac 可达的上游网络更简单；否则必须用明确 DIRECT 保护手机地址和 VPN 控制路径，并验证恢复。",
+      },
+    ],
+  },
+  {
+    ...englishPages[10],
+    locale: "zh-CN",
+    eyebrow: "进阶自动接入",
+    title: "接管局域网 DHCP，同时保留可执行的网络恢复路径",
+    description:
+      "按准备、启动、验收、停止与恢复的完整顺序接管同一 LAN 的 DHCP，不把一次租约成功误当成整个网关已经可用。",
+    intro:
+      "局域网 DHCP 接管会自动让客户端把 Mac 用作 IPv4 网关和 DNS，但也会暂时移除主路由 DHCP 这张安全网。因此 OpenSurge 把恢复状态纳入正式操作，而不是留成事后回忆的备注。",
+    imageAlt: "OpenSurge 在局域网中替代主路由提供 DHCP 与网关服务",
+    keywords: ["局域网 DHCP 接管", "OpenSurge 网络恢复", "Mac DHCP 服务器", "同 LAN 网关恢复"],
+    readingTime: "阅读约 8 分钟",
+    sections: [
+      {
+        heading: "先确认这个 LAN 适合只有一个 DHCP 权威",
+        paragraphs: [
+          "只有当 Mac 与目标客户端处于同一个 IPv4 广播域、客户端隔离没有阻断两者，并且你能够关闭且稍后恢复主路由 DHCP 时，才应选择此模式。整个变更期间，Mac 必须在该 LAN 使用稳定地址，并保持供电、唤醒和可访问。",
+          "先准备一台容易恢复的测试设备。如果只是少量设备需要接入，旁路由模式会保留主路由 DHCP，故障影响范围更小。",
+        ],
+        bullets: [
+          "确认 Mac 和一台客户端位于同一 IPv4 网段且能够互相访问。",
+          "修改 DHCP 前，先确认主路由管理页面的访问路径。",
+          "从 OpenSurge 地址池中排除路由器、Mac 与受保护的静态地址。",
+          "把下游 IPv6 当作另一项实验性决策；共享 LAN 接管还必须消除主路由 RA/DHCPv6，或使用 RA Guard。",
+        ],
+      },
+      {
+        heading: "关闭任何 DHCP 服务前先准备离线恢复",
+        paragraphs: [
+          "在“网络设置”选择“局域网 DHCP 接管”，检查自动填入的接口、真实子网前缀、Mac 网关 IPv4、上游路由器与 DNS、受保护地址和 DHCP 地址池，保存配置后再点击“保存网络快照与离线恢复卡”。",
+          "按向导把 Mac 切换为记录好的固定 IPv4，并等待 OpenSurge 回读网络服务确认成功。把恢复卡保存在不依赖当前 LAN DNS 也能打开的位置；其中记录了重新进入路由器和恢复手工网络所需的信息。",
+        ],
+        resources: [
+          {
+            label: "OpenSurge App 使用指南",
+            description: "安装包当前采用的配置、接管、停止和网络恢复流程。",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/app-user-guide.zh-CN.md",
+          },
+        ],
+      },
+      {
+        heading: "启动后分别证明 DHCP、DNS 与 TUN",
+        paragraphs: [
+          "只在页面提示时关闭主路由 DHCP，再返回 OpenSurge 执行 DHCP OFFER 探测。状态符合预期后继续启动 OpenSurge，并让测试客户端断开、重新接入网络，以取得一份新租约。",
+          "取得租约只证明某个 DHCP server 做出了响应。还要确认客户端拿到预期地址、IPv4 默认网关和 DNS 都指向 Mac，能够解析新域名、在不配置显式代理的情况下访问 HTTPS，并在 OpenSurge 中留下相应客户端、TUN 与出口证据。",
+        ],
+        bullets: [
+          "租约：地址来自配置的地址池或固定 reservation。",
+          "网关与 DNS：在此拓扑中都指向 Mac 已配置的 IPv4。",
+          "数据面：不设置客户端代理时，新 DNS 与 HTTPS 请求仍然成功。",
+          "归属：连接页显示真实客户端与实际使用的 outbound chain。",
+        ],
+      },
+      {
+        heading: "通过恢复状态机停止，而不是只关进程",
+        paragraphs: [
+          "先完成客户端验收，或明确记录跳过，再点击“停止 OpenSurge”。按提示重新开启主路由 DHCP，返回 OpenSurge 执行 DHCP OFFER 探测，最后把 Mac 恢复为自动 DHCP，或明确选择保留静态 IPv4 后结束。",
+          "不要把网关已停止等同于 LAN 已恢复，也不要在恢复仍待处理时退出。如果 Mac 已经改成静态地址、但网关尚未 active 就决定放弃，应使用“放弃 DHCP 接管”：只有看到 DHCP OFFER 时才安全切回自动 DHCP；否则可以明确以“保留静态 IP”结束，但不会声称其他客户端自动获取已经恢复。",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "客户端拿到 OpenSurge DHCP 租约就代表接管成功吗？",
+        answer:
+          "不代表。它只证明租约步骤；还要从客户端分别验证网关、DNS、无显式代理 HTTPS、TUN 观察和预期出口。",
+      },
+      {
+        question: "网关显示已停止后可以直接退出吗？",
+        answer:
+          "恢复仍待处理时不可以。先恢复主路由 DHCP、确认 OFFER，并完成 Mac 自动 DHCP 或明确保留静态地址的分支。",
+      },
+      {
+        question: "第一次使用应该直接选 DHCP 接管吗？",
+        answer:
+          "通常先用旁路由模式接入一台设备。只有确实需要自动接入整个 LAN，并且理解主路由恢复路径时，再选择 DHCP 接管。",
+      },
+    ],
+  },
+  {
+    ...englishPages[11],
+    locale: "zh-CN",
+    eyebrow: "Mac 本机流量",
+    title: "协同 Mac 本机出口模式与 macOS 系统代理",
+    description:
+      "理解网关 Mac 上的规则、全局与直连模式，以及何时才需要启用独立的 HTTP/HTTPS 系统代理兼容层。",
+    intro:
+      "OpenSurge 有两套刻意分开的本机控制：一套决定进入数据面的新连接使用什么出口，另一套是默认关闭、用于处理 TUN-only DNS 冲突的系统代理兼容选项。",
+    imageAlt: "OpenSurge 设备页中的 Mac 本机出口与下游设备策略控制",
+    keywords: ["OpenSurge Mac 本机分流", "macOS 系统代理 mihomo", "SafeDNS TUN 冲突", "Mac 规则全局直连"],
+    readingTime: "阅读约 7 分钟",
+    sections: [
+      {
+        heading: "把本机模式与下游设备策略分开理解",
+        paragraphs: [
+          "设备页的“规则 / 全局 / 直连”只影响经 TUN 或本机 mixed-port 进入 OpenSurge 的 Mac 新连接。它不会改变 mihomo 顶层 rule mode、DHCP/DNS、下游设备 Selector 或已经建立的连接。",
+          "回环、LAN / 私网、链路本地、CGNAT 和组播目标会在模式 overlay 之前保持 DIRECT，避免选择远端出口后失去本地管理路径。",
+        ],
+        bullets: [
+          "规则：继续进入 imported 或 managed 网关规则。",
+          "全局：Mac 本机 TCP 使用专用的隐藏 Selector。",
+          "直连：符合本机身份的流量使用 DIRECT。",
+          "全局模式无法确认 UDP 能力时，本机 UDP 会以 REJECT fail closed，不会静默落到其他规则。",
+        ],
+      },
+      {
+        heading: "只为对应兼容场景启用系统代理协同",
+        paragraphs: [
+          "本机模式开关不会修改“系统设置 → 网络 → 代理”。如果 SafeDNS、DNS Proxy、内容过滤或其他 Network Extension 让 Mac 在只开 TUN 时出现本机 DNS / 连接异常，可以另行启用“Mac 本机系统代理协同”，临时把 HTTP 和 HTTPS 指向 127.0.0.1:<mixed-port>。",
+          "这个选项依赖 TUN，且默认关闭。它只影响遵循 HTTP/HTTPS 系统代理的 Mac 应用；不接管 SOCKS、PAC、自动发现、绕过域名、下游设备，也不覆盖从未进入 OpenSurge 的流量。",
+        ],
+      },
+      {
+        heading: "理解 fail closed 的设置归属契约",
+        paragraphs: [
+          "修改宿主机之前，OpenSurge 会解析当前上游 network service，拒绝已有 HTTP/HTTPS 代理、PAC、自动发现或认证代理冲突，并保存原有 HTTP/HTTPS 状态。只有 mihomo/TUN 与网关服务都 ready 后，才会写入临时代理。",
+          "Stop 会先恢复快照再停止 mihomo；启动回滚、mihomo 替换失败与 interrupted runtime 恢复也遵循同一顺序。接管期间手工修改的 HTTP/HTTPS 设置会在恢复时被原快照替换，因此不要把这个开关当作通用系统代理编辑器。",
+        ],
+        codeBlocks: [
+          {
+            label: "只读取当前代理状态，不进行修改",
+            language: "shell",
+            code: systemProxyInspection,
+          },
+        ],
+        resources: [
+          {
+            label: "Mac 本机流量模式参考",
+            description: "本机身份、Selector、UDP 与下游隔离的完整语义。",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/local-mac-routing.zh-CN.md",
+          },
+          {
+            label: "系统代理协同契约",
+            description: "兼容开关的窄写入范围与恢复技术边界。",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/agent-wiki/wiki/concepts/local-system-proxy-coordination.md",
+          },
+        ],
+      },
+      {
+        heading: "用新连接和停止恢复来验收",
+        paragraphs: [
+          "切换规则、全局或直连后，应重新发起请求，再通过“连通性”或“连接”查看命中规则与真实 outbound。Control Service 发起的连通性探测属于 Mac 本机 mixed-port 证据，不能证明下游设备路径。",
+          "验证系统代理协同时，先记录启动前 HTTP/HTTPS 状态，复现 TUN-only 应用异常，再启用开关并验证目标应用；停止 OpenSurge 后还要确认原代理状态已经恢复。开关关闭时的普通 TUN 测试不能证明这个兼容场景。",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "全局模式会让每台下游设备都走同一节点吗？",
+        answer:
+          "不会。这里的全局只针对符合条件的 Mac 本机流量；下游设备继续使用自己的设备策略或网关规则。",
+      },
+      {
+        question: "启用 TUN 时应该始终开启系统代理协同吗？",
+        answer:
+          "不应该。只有遵循 HTTP/HTTPS 系统代理的 Mac 应用遇到明确的 TUN-only 或 Network Extension 冲突时才需要开启。",
+      },
+      {
+        question: "为什么还没启动就可能被拒绝？",
+        answer:
+          "因为 OpenSurge 不会覆盖已经启用的 HTTP/HTTPS 代理、PAC、自动发现或认证代理；无法安全取得设置归属时会 fail closed。",
+      },
+    ],
+  },
+  {
+    ...englishPages[12],
+    locale: "zh-CN",
+    eyebrow: "来源与 Profile 工作流",
+    title: "导入 mihomo 配置，同时保留网关安全边界",
+    description:
+      "把订阅或本地 mihomo YAML 作为 OpenSurge 来源，保留节点、策略组、规则、Provider 与受支持的 DNS 策略。",
+    intro:
+      "Imported 模式是一层 overlay，不是原样透传：mihomo profile 提供代理与规则生态，OpenSurge 继续拥有 LAN、DNS listener、TUN、controller、runtime 路径和恢复关键字段。",
+    imageAlt: "由 imported mihomo 来源生成的 OpenSurge 策略组",
+    keywords: ["OpenSurge 导入 mihomo 配置", "mihomo 订阅 macOS 网关", "Clash YAML OpenSurge", "imported mihomo overlay"],
+    readingTime: "阅读约 8 分钟",
+    sections: [
+      {
+        heading: "先导入为草稿，不直接改变运行网关",
+        paragraphs: [
+          "在“来源”页添加 HTTPS 订阅或本地 mihomo YAML，并点击“导入为草稿”。结构校验通过后，才能设为下次启动版本或应用到运行中的网关。刷新只会创建另一份草稿，不会静默替换 applied 版本。",
+          "OpenSurge 管理的快照带有摘要、历史和应用状态，不要原地编辑。需要修改时使用“导出副本”，编辑 exports 目录下权限为 0600 的独立 YAML，再把该文件作为新的本地草稿导入。",
+        ],
+        resources: [
+          {
+            label: "OpenSurge 来源工作流",
+            description: "安装包中导入、导出、刷新与应用来源的完整步骤。",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/app-user-guide.zh-CN.md",
+          },
+        ],
+      },
+      {
+        heading: "明确 imported profile 提供哪些内容",
+        paragraphs: [
+          "Imported profile 会提供 proxies、proxy-providers、proxy-groups、rule-providers 与 rules。OpenSurge 以 YAML node 解析这些 section，兼容 block 与 flow collection，并保留规则顺序——包括终止 MATCH 之后不能再有规则的要求。",
+          "Profile 的 DNS section 会按字段合并。nameserver、nameserver-policy、proxy-server-nameserver、direct-nameserver、fake-ip-filter 和 fallback 等解析器 / 过滤策略可以保留，因为代理节点域名可能依赖它们。",
+        ],
+      },
+      {
+        heading: "明确 OpenSurge 继续拥有的字段",
+        paragraphs: [
+          "OpenSurge 负责渲染 mixed-port、LAN binding、allow-lan、external-controller、Selector 与 fake-IP 持久化、DNS enable/listen/fake-IP range、TUN 路由、LAN 排除项和 runtime 路径。Imported 值不能关闭网关 listener、替换 controller 或重新开启不支持的透明代理路径。",
+          "因此应把桌面 profile 适配成 imported 来源，而不是覆盖生成的 runtime/mihomo.yaml。生成文件是 applied artifact，不是可编辑的 source of truth。",
+        ],
+        codeBlocks: [
+          {
+            label: "合并进真实 profile 的最小 imported section 示例",
+            language: "yaml",
+            code: importedProfileExample,
+          },
+        ],
+        resources: [
+          {
+            label: "mihomo profile overlay 参考",
+            description: "精确列出 imported section、网关自有字段、规则顺序与验证门槛。",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/agent-wiki/wiki/concepts/mihomo-profile-overlay.md",
+          },
+        ],
+      },
+      {
+        heading: "事务化应用，再观察真实路径",
+        paragraphs: [
+          "网关停止时，选择来源只更新下次启动的 desired state；网关运行时，“应用并重载”会先验证组合后的完整配置，再受控重载网关。预校验失败不会改变当前 runtime；只有新 runtime 成功启动后，OpenSurge 才会记录新的 imported-profile digest。",
+          "应用后查看“策略”和 Provider，按需切换已经 applied 的 Selector，再产生新流量。节点健康与 YAML 校验属于控制面证据；还要通过连接、命中规则与观察到的最终出口证明预期业务路径。",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "可以用完整桌面 mihomo 配置直接覆盖 runtime 文件吗？",
+        answer:
+          "不可以。应通过“来源”导入；runtime 文件由系统生成，OpenSurge 必须保留 LAN、DNS、TUN、controller 和恢复相关字段的归属。",
+      },
+      {
+        question: "OpenSurge 会保留原有策略组与规则吗？",
+        answer:
+          "会，只要结构有效、规则顺序正确且没有占用 OpenSurge 保留命名空间；本机与设备 overlay 会围绕 imported section 组合。",
+      },
+      {
+        question: "导入成功是否证明远端代理可用？",
+        answer:
+          "不能。导入成功只证明来源可以组合；仍要检测节点、产生新的真实业务连接，并分别查看命中规则、实际 outbound 或最终出口。",
       },
     ],
   },
