@@ -2,6 +2,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join, relative } from "node:path";
 
 const outputDirectory = new URL("../out/", import.meta.url);
+const expectedIndexablePages = 30;
 
 async function walk(directory) {
   const entries = await readdir(directory);
@@ -43,7 +44,10 @@ const htmlFiles = files.filter(
     !file.endsWith("/_not-found/index.html"),
 );
 
-assert(htmlFiles.length === 26, `Expected 26 indexable pages, found ${htmlFiles.length}`);
+assert(
+  htmlFiles.length === expectedIndexablePages,
+  `Expected ${expectedIndexablePages} indexable pages, found ${htmlFiles.length}`,
+);
 
 const titles = new Set();
 const descriptions = new Set();
@@ -102,7 +106,13 @@ for (const required of ["robots.txt", "sitemap.xml", "manifest.webmanifest", "og
 }
 
 const sitemap = await readFile(new URL("sitemap.xml", outputDirectory), "utf8");
-assert((sitemap.match(/<url>/g) ?? []).length === 26, "Sitemap must contain 26 URLs");
-assert((sitemap.match(/hreflang="zh-CN"/g) ?? []).length === 26, "Sitemap is missing language alternates");
+assert(
+  (sitemap.match(/<url>/g) ?? []).length === expectedIndexablePages,
+  `Sitemap must contain ${expectedIndexablePages} URLs`,
+);
+assert(
+  (sitemap.match(/hreflang="zh-CN"/g) ?? []).length === expectedIndexablePages,
+  "Sitemap is missing language alternates",
+);
 
 console.log(`SEO check passed: ${htmlFiles.length} static pages, complete metadata, JSON-LD, hreflang, robots, and sitemap.`);

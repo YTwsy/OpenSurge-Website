@@ -7,6 +7,16 @@ export type ContentSection = {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  codeBlocks?: {
+    label: string;
+    language: string;
+    code: string;
+  }[];
+  resources?: {
+    label: string;
+    description: string;
+    href: string;
+  }[];
 };
 
 export type ContentPage = {
@@ -19,6 +29,7 @@ export type ContentPage = {
   intro: string;
   image: string;
   imageAlt: string;
+  imageFit?: "cover" | "contain";
   keywords: string[];
   updatedAt: string;
   readingTime: string;
@@ -31,6 +42,71 @@ type SectionCopy = {
   title: string;
   description: string;
 };
+
+const claudeTemplateModel = `{
+  "templates": [
+    {
+      "id": "claude-code",
+      "rule_sets": [
+        "claude-code-domains",
+        "claude-code-extra",
+        "claude-code-network",
+        "ntp-common"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "id": "work-device-policy",
+      "default_policies": ["DIRECT"],
+      "rules": [
+        {
+          "id": "claude-code",
+          "match": { "template": "claude-code" },
+          "policies": ["Claude-US", "DIRECT"]
+        }
+      ]
+    }
+  ]
+}`;
+
+const pixelSocksProfile = `proxies:
+  - name: "Pixel-Google-VPN"
+    type: socks5
+    server: 192.168.1.23
+    port: 1080
+    udp: true
+    # username: your-user
+    # password: your-password
+
+proxy-groups:
+  - name: "Pixel-Egress"
+    type: select
+    proxies:
+      - "Pixel-Google-VPN"
+      - DIRECT
+
+rules:
+  # Keep the phone and private LAN reachable without a proxy loop.
+  - IP-CIDR,192.168.1.23/32,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  # Put targeted rules above the existing terminal MATCH rule.
+  - DOMAIN-SUFFIX,anthropic.com,Pixel-Egress
+  - MATCH,DIRECT`;
+
+const pixelHttpProxy = `proxies:
+  - name: "Pixel-Google-VPN-HTTP"
+    type: http
+    server: 192.168.1.23
+    port: 8080
+    # username: your-user
+    # password: your-password`;
+
+const pixelProxySmoke = `curl --proxy socks5h://192.168.1.23:1080 https://api.ipify.org
+# HTTP alternative:
+curl --proxy http://192.168.1.23:8080 https://api.ipify.org`;
 
 export const sectionCopy: Record<Locale, Record<SectionKey, SectionCopy>> = {
   en: {
@@ -186,6 +262,19 @@ const englishPages: ContentPage[] = [
           "Use a device-specific selector for public destinations.",
           "Apply targeted overrides by domain, IP, protocol, port, or rule provider.",
           "Reject selected traffic for a specific device.",
+        ],
+      },
+      {
+        heading: "Reuse matching logic without baking in an exit",
+        paragraphs: [
+          "The rule library separates reusable rule sets, outlet-free routing templates, and each device's hit action. One template can therefore describe a service once while different devices send its matches to different fixed exits or independently switchable selectors.",
+          "OpenSurge includes an inspectable Claude Code community example as a learning starter. It remains inactive until an operator chooses a device and an exit, and it is not presented as an official Anthropic rule list.",
+        ],
+        bullets: [
+          "Keep small domain, IP CIDR, or classical lists inline.",
+          "Use HTTP rule providers for larger operator-owned lists.",
+          "Combine rule sets in an outlet-free routing template.",
+          "Choose the fixed action or selector only on the device route.",
         ],
       },
       {
@@ -555,6 +644,220 @@ const englishPages: ContentPage[] = [
       },
     ],
   },
+  {
+    section: "guides",
+    slug: "claude-code-device-rules",
+    locale: "en",
+    eyebrow: "Reusable rule library",
+    title: "Route Claude Code from one downstream device with a reusable template",
+    description:
+      "Use OpenSurge rule sets and an outlet-free Claude Code template to give one downstream device a controlled, independently switchable egress.",
+    intro:
+      "The current OpenSurge rule library separates what should match from where a match should go. Its built-in Claude Code community example installs four reusable rule sets only after you choose a device and an egress.",
+    image: "/screenshots/devices.png",
+    imageAlt: "OpenSurge rule library and per-device routing controls",
+    keywords: [
+      "Claude Code proxy rules",
+      "Claude Code downstream device",
+      "OpenSurge rule template",
+      "mihomo Claude Code rules",
+    ],
+    updatedAt: "2026-08-22",
+    readingTime: "6 min read",
+    sections: [
+      {
+        heading: "Inspect the community example before using it",
+        paragraphs: [
+          "Open Devices → Rule library → Routing templates and expand the Claude Code card. The fixed 2026-08-22 snapshot groups core domains, extended services, IP and ASN fallbacks, and a common NTP rule. It is based on the linked Net.Coffee community page, not an official Anthropic rule list.",
+          "The example is inactive by default. Viewing it does not write policy, change a selector, or apply it to any device. Service endpoints can change, so treat the source and the visible snapshot as reviewable operator input rather than a permanent completeness guarantee.",
+        ],
+        resources: [
+          {
+            label: "Net.Coffee Claude Code rules",
+            description: "The third-party community source used for the inspectable built-in snapshot.",
+            href: "https://ip.net.coffee/claude/site.html",
+          },
+          {
+            label: "OpenSurge device-policy reference",
+            description: "The source-of-truth schema, ordering, and validation boundaries.",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/device-policy.md",
+          },
+        ],
+      },
+      {
+        heading: "Attach the template to one registered device",
+        paragraphs: [
+          "Register the downstream device with a stable IPv4 identity first. In the Claude Code template card, choose Use for device, select the device, then choose either a fixed egress or an independently switchable selector with one or more existing proxy or group candidates.",
+          "Adding the route to the draft installs the four rule sets and the outlet-free claude-code template if they are not already present. Save and reload to apply identity or rule changes. After application, selector changes are immediate, while editing the rule library still requires another save and reload.",
+        ],
+        bullets: [
+          "Following gateway rules: Claude matches use the device route; unmatched traffic continues through the imported or managed gateway rules.",
+          "Independent device egress: Claude matches use this route; unmatched public traffic uses the device's default selector.",
+          "The NTP item matches UDP destination port 123 for this device, so verify that the chosen exit supports the intended UDP path.",
+          "Unsupported traffic fails closed by default instead of silently falling through to DIRECT.",
+        ],
+      },
+      {
+        heading: "Understand the reusable model",
+        paragraphs: [
+          "Rule sets contain matching material, the routing template contains only ordered rule-set references, and the device route owns the fixed action or selector candidates. The Web GUI manages this document for normal use; the abbreviated JSON below shows the separation without reproducing the full built-in snapshot.",
+        ],
+        codeBlocks: [
+          {
+            label: "Conceptual device-policy result",
+            language: "json",
+            code: claudeTemplateModel,
+          },
+        ],
+      },
+      {
+        heading: "Verify from the downstream device",
+        paragraphs: [
+          "Start a real Claude Code session on the registered downstream device, then inspect OpenSurge connections for that device. Confirm the expected service connections show the device-scoped Claude route and the selected outbound chain; do not infer the route from a green node-health probe or selector label alone.",
+          "Also check unmatched browsing, local services, DNS, and any required UDP behavior. This validates your device, profile, and current community rules; it does not turn the third-party list into an OpenSurge or Anthropic availability guarantee.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Does opening the built-in example change my configuration?",
+        answer:
+          "No. The example is inspectable and inactive by default. Its rule sets and template enter the draft only when you add a Claude Code route to a device.",
+      },
+      {
+        question: "Can two devices reuse the template but use different exits?",
+        answer:
+          "Yes. The template contains no outlet. Each device route can point the same match template at its own fixed action or selector candidates.",
+      },
+      {
+        question: "Are these official Anthropic rules?",
+        answer:
+          "No. They are a dated snapshot of a linked community source. Review the visible rules and revalidate them when service behavior changes.",
+      },
+    ],
+  },
+  {
+    section: "guides",
+    slug: "pixel-google-vpn-egress",
+    locale: "en",
+    eyebrow: "Android VPN egress",
+    title: "Add a Pixel VPN by Google path as an OpenSurge outbound",
+    description:
+      "Expose a Pixel phone's VPN path through a LAN HTTP or SOCKS5 port, import it as a mihomo node, and route selected downstream traffic through it.",
+    intro:
+      "Pixel Proxy Gateway or Every Proxy can expose a phone-side VPN path to the LAN. OpenSurge then treats that HTTP or SOCKS5 listener as an ordinary imported mihomo outbound while remaining the downstream gateway and policy control plane.",
+    image: "/topologies/pixel-vpn-egress.svg",
+    imageAlt: "Downstream device traffic flowing through OpenSurge to a Pixel proxy and VPN by Google",
+    imageFit: "contain",
+    keywords: [
+      "Pixel VPN by Google proxy",
+      "Google One VPN LAN proxy",
+      "Pixel Proxy Gateway mihomo",
+      "Android VPN OpenSurge outbound",
+    ],
+    updatedAt: "2026-08-22",
+    readingTime: "8 min read",
+    sections: [
+      {
+        heading: "Expose the phone VPN without replacing it",
+        paragraphs: [
+          "Google's current Pixel feature is named VPN by Google; the older VPN by Google One service was discontinued. On an eligible Pixel and account, enable the built-in VPN first, then run a LAN proxy app. Pixel Proxy Gateway is the recommended open-source, ad-free option for a monitored always-on gateway; Every Proxy is a simpler alternative.",
+          "Pixel Proxy Gateway intentionally does not implement Android VpnService, leaving the system VPN slot available. By default it listens on HTTP port 8080 and SOCKS5 port 1080 on all interfaces, with authentication disabled. Give the phone a stable LAN address and enable credentials when the LAN is not fully trusted.",
+        ],
+        resources: [
+          {
+            label: "Pixel Proxy Gateway",
+            description: "Open-source Android HTTP/SOCKS gateway with health, watchdog, recovery, and diagnostic features.",
+            href: "https://github.com/YTwsy/pixel-proxy-gateway",
+          },
+          {
+            label: "Google Pixel VPN eligibility",
+            description: "Google's current supported-device, account, and region requirements for VPN by Google.",
+            href: "https://support.google.com/pixelphone/answer/2819573",
+          },
+          {
+            label: "Every Proxy",
+            description: "Google Play alternative for exposing Android HTTP or SOCKS proxy ports.",
+            href: "https://play.google.com/store/apps/details?id=com.gorillasoftware.everyproxy",
+          },
+        ],
+      },
+      {
+        heading: "Keep the phone outside its own proxy loop",
+        paragraphs: [
+          "Prefer a topology where the Mac can reach the Pixel but the Pixel does not depend on OpenSurge as its default gateway—for example, both on the Mac's upstream Wi-Fi with the Pixel on a DHCP reservation. If the phone sits inside the managed downstream LAN, keep its address and private networks DIRECT and verify the phone VPN's own control path does not return through the Pixel outbound.",
+        ],
+        bullets: [
+          "Reserve a stable Pixel IPv4 address.",
+          "Confirm the Mac can reach the selected HTTP or SOCKS5 port.",
+          "Keep the Pixel address and LAN/private ranges direct.",
+          "If known, keep the phone VPN server or control endpoints outside the Pixel route.",
+        ],
+      },
+      {
+        heading: "Merge the LAN node into the imported mihomo profile",
+        paragraphs: [
+          "Export an editable copy of the current source from the OpenSurge Sources page, merge the proxy and group into its existing proxies and proxy-groups sections, and place targeted rules above the existing terminal MATCH rule. Replace the example Pixel address and candidate names; do not replace a working subscription with this abbreviated sample.",
+          "SOCKS5 is the better starting point when the workload may need UDP, but udp: true is a capability request, not proof that the app, VPN, and final exit carry every UDP or QUIC flow. HTTP is appropriate for TCP and CONNECT traffic and should not be described as a full UDP path.",
+        ],
+        codeBlocks: [
+          {
+            label: "SOCKS5 node and targeted group",
+            language: "yaml",
+            code: pixelSocksProfile,
+          },
+          {
+            label: "HTTP alternative",
+            language: "yaml",
+            code: pixelHttpProxy,
+          },
+        ],
+        resources: [
+          {
+            label: "mihomo SOCKS outbound syntax",
+            description: "Official mihomo fields for SOCKS5 nodes, including optional authentication and UDP.",
+            href: "https://wiki.metacubex.one/en/config/proxies/socks/",
+          },
+          {
+            label: "mihomo HTTP outbound syntax",
+            description: "Official mihomo fields for HTTP and HTTPS upstream proxy nodes.",
+            href: "https://wiki.metacubex.one/en/config/proxies/http/",
+          },
+        ],
+      },
+      {
+        heading: "Import, route, and prove the exit",
+        paragraphs: [
+          "Import the edited local YAML as a draft, require structural validation to pass, then set it for the next start or apply it with a controlled reload. The Pixel node can be used by a global group or selected as the fixed or switchable egress for the Claude Code device template from the companion guide.",
+          "First compare the Mac's direct public IP with a request sent explicitly through the phone proxy. Then generate real traffic from the intended downstream device and confirm the OpenSurge connection view reports the expected device route and Pixel outbound. A listener health check proves reachability; only the observed public IP or the real service path proves the VPN exit you expected.",
+        ],
+        codeBlocks: [
+          {
+            label: "Direct phone-proxy smoke from the Mac",
+            language: "shell",
+            code: pixelProxySmoke,
+          },
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Does Pixel Proxy Gateway provide VPN by Google?",
+        answer:
+          "No. It exposes HTTP and SOCKS ports from an ordinary Android app. The Pixel operating system and eligible Google account provide the VPN path.",
+      },
+      {
+        question: "Should I use HTTP or SOCKS5?",
+        answer:
+          "HTTP is suitable for TCP and CONNECT workloads. Start with SOCKS5 when UDP may matter, but verify the complete phone-app, VPN, and destination path instead of assuming udp: true proves it.",
+      },
+      {
+        question: "Can the Pixel itself be an OpenSurge downstream device?",
+        answer:
+          "It can, but that topology adds loop risk. Keeping the Pixel on a Mac-reachable upstream network is simpler; otherwise protect its address and VPN control path with explicit DIRECT behavior and test recovery.",
+      },
+    ],
+  },
 ];
 
 const chinesePages: ContentPage[] = [
@@ -640,6 +943,19 @@ const chinesePages: ContentPage[] = [
           "为公网目标使用设备专属 Selector。",
           "按域名、IP、协议、端口或规则提供者增加覆盖。",
           "对指定设备拒绝特定流量。",
+        ],
+      },
+      {
+        heading: "复用匹配逻辑，不把出口写进模版",
+        paragraphs: [
+          "规则库把可复用规则集、不带出口的分流模版，以及每台设备命中后的动作分开管理。同一份模版只描述一次服务范围，不同设备仍可把命中流量交给不同固定出口或可即时切换的 Selector。",
+          "OpenSurge 内置一份可查看的 Claude Code 社区示例作为学习起点；只有操作者选择设备和出口后它才进入配置，而且不会被描述成 Anthropic 官方规则。",
+        ],
+        bullets: [
+          "较小的域名、IP CIDR 或经典规则使用 inline 列表。",
+          "较大的操作者自有列表使用 HTTP rule provider。",
+          "把多份规则集组合成不带出口的分流模版。",
+          "只在设备分流上选择固定动作或独立 Selector。",
         ],
       },
       {
@@ -958,6 +1274,203 @@ const chinesePages: ContentPage[] = [
         question: "v0.2 替换了 mihomo TUN 吗？",
         answer:
           "没有。TUN 仍是 Mac 本机与下游 IPv4 的透明路径；packet listener 只是下游 IPv6 的独立实验性入口。",
+      },
+    ],
+  },
+  {
+    ...englishPages[8],
+    locale: "zh-CN",
+    eyebrow: "可复用规则库",
+    title: "用可复用模版让一台下游设备访问 Claude Code",
+    description:
+      "使用 OpenSurge 规则集和不带出口的 Claude Code 模版，为指定下游设备配置可独立切换的受控出口。",
+    intro:
+      "当前 OpenSurge 规则库会把“匹配什么”和“命中后走哪里”分开。内置 Claude Code 社区示例只有在你选定设备与出口后，才会安装四份可复用规则集。",
+    imageAlt: "OpenSurge 规则库与按设备分流控制",
+    keywords: ["Claude Code 分流规则", "下游设备 Claude Code", "OpenSurge 规则模版", "mihomo Claude Code 规则"],
+    readingTime: "阅读约 6 分钟",
+    sections: [
+      {
+        heading: "使用前先查看社区示例",
+        paragraphs: [
+          "进入“设备 → 规则库 → 分流模版”，展开 Claude Code 卡片。固定于 2026-08-22 的快照把核心域名、扩展服务、IP / ASN 兜底和 NTP 通用规则分成四组；它参考下方 Net.Coffee 社区页面，不是 Anthropic 官方规则。",
+          "示例默认未启用。只查看规则不会写入策略、切换 Selector 或应用到任何设备。服务端点可能变化，因此应把来源与可见快照视为由操作者审阅的输入，而不是永久完整性保证。",
+        ],
+        resources: [
+          {
+            label: "Net.Coffee Claude Code 规则",
+            description: "OpenSurge 可查看内置快照所参考的第三方社区来源。",
+            href: "https://ip.net.coffee/claude/site.html",
+          },
+          {
+            label: "OpenSurge 设备策略参考",
+            description: "规则结构、顺序和验证边界的项目源文档。",
+            href: "https://github.com/YTwsy/OpenSurge-for-Mac/blob/master/docs/device-policy.zh-CN.md",
+          },
+        ],
+      },
+      {
+        heading: "把模版交给一台已登记设备",
+        paragraphs: [
+          "先用稳定 IPv4 身份登记下游设备。在 Claude Code 模版卡片点击“用于设备”，选择目标设备，再选择固定出口，或配置带一个以上已有节点 / 策略组候选的独立 Selector。",
+          "把分流添加到草稿时，如果配置中还没有这些内容，Web GUI 才会安装四份规则集和不带出口的 claude-code 模版。保存并重载后，身份和规则变更才会应用；已应用的 Selector 可以即时切换，继续编辑规则库仍需再次保存并重载。",
+        ],
+        bullets: [
+          "跟随网关规则：Claude 命中设备分流，其他流量继续进入 imported / managed 网关规则。",
+          "独立设备出口：Claude 命中这条分流，其他公网流量使用设备默认 Selector。",
+          "NTP 项会匹配这台设备的 UDP 目标端口 123，应确认所选出口具备需要的 UDP 路径。",
+          "不支持的流量默认 fail closed，不会静默回落到 DIRECT。",
+        ],
+      },
+      {
+        heading: "理解可复用模型",
+        paragraphs: [
+          "规则集保存匹配材料，分流模版只保存有顺序的规则集引用，固定动作或 Selector 候选则属于设备分流。日常使用由 Web GUI 管理；下面的缩略 JSON 只用来说明分层，不会重复整份内置快照。",
+        ],
+        codeBlocks: [
+          {
+            label: "设备策略的概念结果",
+            language: "json",
+            code: claudeTemplateModel,
+          },
+        ],
+      },
+      {
+        heading: "从下游设备验证真实路径",
+        paragraphs: [
+          "在已登记的下游设备上启动真实 Claude Code 会话，再按设备查看 OpenSurge 连接。确认相关服务连接命中设备级 Claude 分流，并显示预期 outbound chain；不要从绿色节点健康探测或 Selector 标签反推实际连接路径。",
+          "同时检查未命中网页、局域网服务、DNS 和需要的 UDP 行为。这只能验收当前设备、配置与社区规则，不会把第三方列表变成 OpenSurge 或 Anthropic 的可用性保证。",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "展开内置示例会改变当前配置吗？",
+        answer:
+          "不会。示例默认只供查看；只有把 Claude Code 分流添加到某台设备后，对应规则集和模版才会进入草稿。",
+      },
+      {
+        question: "两台设备能复用同一模版但选择不同出口吗？",
+        answer:
+          "可以。模版本身不含出口，每台设备分流都能把相同匹配模版指向自己的固定动作或 Selector 候选。",
+      },
+      {
+        question: "这是 Anthropic 官方规则吗？",
+        answer:
+          "不是。它是带日期的社区来源快照；服务行为变化时，应重新查看可见规则并验收真实连接。",
+      },
+    ],
+  },
+  {
+    ...englishPages[9],
+    locale: "zh-CN",
+    eyebrow: "Android VPN 出口",
+    title: "把 Pixel 的 VPN by Google 添加为 OpenSurge 出口",
+    description:
+      "把 Pixel 手机上的 VPN 路径暴露为 LAN HTTP / SOCKS5 端口，再作为 mihomo 节点导入，并让指定下游流量使用它。",
+    intro:
+      "Pixel Proxy Gateway 或 Every Proxy 可以把手机侧 VPN 路径提供给局域网。OpenSurge 再把这个 HTTP / SOCKS5 监听器当作普通 imported mihomo 出口，同时继续负责下游网关与策略控制面。",
+    imageAlt: "下游设备流量经 OpenSurge、Pixel 代理和 VPN by Google 出站的拓扑",
+    keywords: ["Pixel VPN by Google 代理", "Google One VPN 局域网代理", "Pixel Proxy Gateway mihomo", "Android VPN OpenSurge 出口"],
+    readingTime: "阅读约 8 分钟",
+    sections: [
+      {
+        heading: "暴露手机 VPN，而不是替代它",
+        paragraphs: [
+          "Google 当前在 Pixel 上的功能名是 VPN by Google，早期 VPN by Google One 服务已经停止。先在符合机型、账号和地区条件的 Pixel 上开启系统内置 VPN，再运行 LAN 代理应用。推荐使用开源、无广告并面向常驻网关监控的 Pixel Proxy Gateway；Every Proxy 可作为更轻量的替代。",
+          "Pixel Proxy Gateway 有意不实现 Android VpnService，把系统 VPN 槽位留给手机侧 VPN。默认监听所有接口的 HTTP 8080 与 SOCKS5 1080，认证默认关闭。应为手机保留稳定 LAN 地址；局域网并非完全可信时请启用账号密码。",
+        ],
+        resources: [
+          {
+            label: "Pixel Proxy Gateway",
+            description: "带健康检查、watchdog、恢复与诊断能力的开源 Android HTTP / SOCKS 网关。",
+            href: "https://github.com/YTwsy/pixel-proxy-gateway",
+          },
+          {
+            label: "Google Pixel VPN 使用条件",
+            description: "Google 当前公布的 VPN by Google 机型、账号与地区要求。",
+            href: "https://support.google.com/pixelphone/answer/2819573?hl=zh-Hans",
+          },
+          {
+            label: "Every Proxy",
+            description: "可在 Android 上暴露 HTTP 或 SOCKS 代理端口的 Google Play 备选。",
+            href: "https://play.google.com/store/apps/details?id=com.gorillasoftware.everyproxy",
+          },
+        ],
+      },
+      {
+        heading: "让手机避开自己的代理环路",
+        paragraphs: [
+          "优先采用 Mac 能访问 Pixel、但 Pixel 默认网关不依赖 OpenSurge 的拓扑，例如两者都连接 Mac 的上游 Wi-Fi，并在主路由为 Pixel 保留地址。如果手机位于 OpenSurge 管理的下游 LAN，必须让手机地址与私网目标保持 DIRECT，并确认手机 VPN 自己的控制连接不会再次进入 Pixel 出口。",
+        ],
+        bullets: [
+          "为 Pixel 保留稳定 IPv4。",
+          "确认 Mac 可以访问所选 HTTP 或 SOCKS5 端口。",
+          "让 Pixel 地址与 LAN / 私网目标保持直连。",
+          "如果已知手机 VPN 服务端或控制端点，也让它们避开 Pixel 分流。",
+        ],
+      },
+      {
+        heading: "把 LAN 节点合并进 imported mihomo 配置",
+        paragraphs: [
+          "从 OpenSurge“来源”页导出当前来源的可编辑副本，把代理节点与策略组合并到现有 proxies / proxy-groups，并将目标规则放在原有终止 MATCH 规则之前。替换示例中的 Pixel 地址和候选名称；不要用这份缩略示例覆盖可用订阅。",
+          "工作负载可能需要 UDP 时，SOCKS5 更适合作为起点；但 udp: true 只是能力请求，不代表应用、VPN 与最终出口已经承载所有 UDP / QUIC。HTTP 适合 TCP 与 CONNECT，不能描述成完整 UDP 路径。",
+        ],
+        codeBlocks: [
+          {
+            label: "SOCKS5 节点与目标策略组",
+            language: "yaml",
+            code: pixelSocksProfile,
+          },
+          {
+            label: "HTTP 备选",
+            language: "yaml",
+            code: pixelHttpProxy,
+          },
+        ],
+        resources: [
+          {
+            label: "mihomo SOCKS 出口语法",
+            description: "SOCKS5 节点、可选认证与 UDP 字段的官方 mihomo 文档。",
+            href: "https://wiki.metacubex.one/config/proxies/socks/",
+          },
+          {
+            label: "mihomo HTTP 出口语法",
+            description: "HTTP / HTTPS 上游代理节点字段的官方 mihomo 文档。",
+            href: "https://wiki.metacubex.one/config/proxies/http/",
+          },
+        ],
+      },
+      {
+        heading: "导入、分流并证明出口",
+        paragraphs: [
+          "把修改后的本地 YAML 导入为草稿，要求结构校验通过，再设为下次启动版本或执行受控重载。Pixel 节点既可以进入全局策略组，也可以在上一篇指南中作为 Claude Code 设备模版的固定或可切换出口。",
+          "先对比 Mac 直连公网 IP 与显式经过手机代理的请求，再从目标下游设备产生真实流量，确认 OpenSurge 连接页显示预期设备分流和 Pixel outbound。监听器健康只证明端口可达；观察到的公网 IP 或真实业务路径才能证明最终使用了预期 VPN 出口。",
+        ],
+        codeBlocks: [
+          {
+            label: "从 Mac 直连手机代理进行 smoke",
+            language: "shell",
+            code: pixelProxySmoke,
+          },
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Pixel Proxy Gateway 会提供 VPN by Google 吗？",
+        answer:
+          "不会。它只是从普通 Android 应用暴露 HTTP / SOCKS 端口；VPN 路径由 Pixel 系统和符合条件的 Google 账号提供。",
+      },
+      {
+        question: "应该使用 HTTP 还是 SOCKS5？",
+        answer:
+          "HTTP 适用于 TCP / CONNECT。需要 UDP 时先选 SOCKS5，但仍要验收手机应用、VPN 和目标服务的完整路径，不能把 udp: true 当作证据。",
+      },
+      {
+        question: "Pixel 自己可以成为 OpenSurge 下游设备吗？",
+        answer:
+          "可以，但会增加环路风险。让 Pixel 位于 Mac 可达的上游网络更简单；否则必须用明确 DIRECT 保护手机地址和 VPN 控制路径，并验证恢复。",
       },
     ],
   },

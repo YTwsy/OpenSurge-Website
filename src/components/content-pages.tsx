@@ -38,7 +38,7 @@ export function SectionLanding({ locale, section }: { locale: Locale; section: S
             {pages.map((page) => (
               <Link className="article-card" href={pathFor(page)} key={page.slug}>
                 <div className="article-image">
-                  <Image src={page.image} alt="" width={800} height={500} sizes="(max-width: 760px) 92vw, 44vw" />
+                  <Image className={page.imageFit === "contain" ? "image-contain" : undefined} src={page.image} alt="" width={800} height={500} sizes="(max-width: 760px) 92vw, 44vw" />
                 </div>
                 <div className="article-card-copy">
                   <small>{page.eyebrow} · {page.readingTime}</small>
@@ -81,7 +81,7 @@ export function ContentDetail({ page }: { page: ContentPage }) {
                 <div className="article-meta"><span>{page.readingTime}</span><span>{locale === "en" ? "Updated" : "更新于"} {page.updatedAt}</span></div>
               </div>
               <div className="article-hero-image">
-                <Image src={page.image} alt={page.imageAlt} width={1280} height={800} sizes="(max-width: 900px) 94vw, 43vw" priority />
+                <Image className={page.imageFit === "contain" ? "image-contain" : undefined} src={page.image} alt={page.imageAlt} width={1280} height={800} sizes="(max-width: 900px) 94vw, 43vw" priority />
               </div>
             </div>
           </header>
@@ -100,6 +100,22 @@ export function ContentDetail({ page }: { page: ContentPage }) {
                     <h2>{sectionItem.heading}</h2>
                     {sectionItem.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                     {sectionItem.bullets && <ul>{sectionItem.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
+                    {sectionItem.codeBlocks?.map((block) => (
+                      <div className="article-code" key={`${block.label}-${block.language}`}>
+                        <div><strong>{block.label}</strong><span>{block.language}</span></div>
+                        <pre><code>{block.code}</code></pre>
+                      </div>
+                    ))}
+                    {sectionItem.resources && (
+                      <div className="article-resources">
+                        {sectionItem.resources.map((resource) => (
+                          <a href={resource.href} key={resource.href} target="_blank" rel="noreferrer">
+                            <span><strong>{resource.label}</strong><small>{resource.description}</small></span>
+                            <span aria-hidden="true">↗</span>
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </section>
                 );
               })}

@@ -7,7 +7,7 @@ The website lives in a separate repository so product releases, Go/Swift/React a
 ## What is built in
 
 - Next.js App Router with static export; every public page is crawlable HTML.
-- 26 English and Simplified Chinese URLs across feature, guide, documentation, and journal sections.
+- 30 English and Simplified Chinese URLs across feature, guide, documentation, and journal sections.
 - Per-page title, description, keywords, canonical URL, Open Graph, Twitter Card, and language alternates.
 - `WebSite`, `SoftwareApplication`, `CollectionPage`, `TechArticle`, breadcrumb, and visible FAQ structured data.
 - Generated `sitemap.xml`, `robots.txt`, and web app manifest.

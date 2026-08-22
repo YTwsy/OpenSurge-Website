@@ -747,7 +747,7 @@ a {
 .learn-grid {
   margin-top: 56px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -929,6 +929,16 @@ a {
   transform: scale(1.025);
 }
 
+.article-image img.image-contain,
+.article-hero-image img.image-contain {
+  object-fit: contain;
+  background: #edf5f1;
+}
+
+.article-card:hover .article-image img.image-contain {
+  transform: none;
+}
+
 .article-card-copy {
   padding: 31px 33px 34px;
 }
@@ -1001,6 +1011,11 @@ a {
   gap: 80px;
 }
 
+.article-aside,
+.article-body {
+  min-width: 0;
+}
+
 .article-aside {
   position: sticky;
   top: 112px;
@@ -1062,6 +1077,95 @@ a {
 
 .article-body li + li {
   margin-top: 8px;
+}
+
+.article-code {
+  margin: 28px 0;
+  overflow: hidden;
+  border: 1px solid rgba(16, 50, 47, 0.16);
+  border-radius: 17px;
+  color: #e8f2ee;
+  background: #0b2926;
+  box-shadow: 0 18px 45px rgba(6, 35, 32, 0.1);
+}
+
+.article-code > div {
+  padding: 13px 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 11px;
+}
+
+.article-code > div strong {
+  color: #f5faf8;
+  font-weight: 650;
+}
+
+.article-code > div span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.article-code pre {
+  margin: 0;
+  padding: 22px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.68;
+  tab-size: 2;
+}
+
+.article-resources {
+  margin: 28px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.article-resources a {
+  padding: 18px 19px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  border: 1px solid rgba(41, 119, 97, 0.15);
+  border-radius: 15px;
+  background: rgba(231, 244, 237, 0.72);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.article-resources a:hover {
+  border-color: rgba(41, 119, 97, 0.34);
+  background: var(--mint-pale);
+  transform: translateY(-2px);
+}
+
+.article-resources a > span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.article-resources strong {
+  color: #215f50;
+  font-size: 14px;
+}
+
+.article-resources small {
+  color: #58706a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.article-resources a > span:last-child {
+  flex: none;
+  color: #34816b;
+  font-size: 18px;
 }
 
 .faq-section {

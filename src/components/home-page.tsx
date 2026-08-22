@@ -95,6 +95,8 @@ const copy = {
     learnCards: [
       ["Guide", "Use a Mac as a router", "Onboard one device without redesigning the LAN.", "/guides/mac-as-router/"],
       ["Guide", "Route a PS5 through the Mac", "Give a console its own observable egress.", "/guides/ps5-proxy/"],
+      ["Guide", "Route Claude Code by device", "Reuse one service template while choosing each device's exit.", "/guides/claude-code-device-rules/"],
+      ["Guide", "Use a Pixel VPN exit", "Add a phone-side HTTP or SOCKS5 path as a mihomo outbound.", "/guides/pixel-google-vpn-egress/"],
       ["Docs", "Install and verify", "Check the unsigned package and complete a careful first run.", "/docs/getting-started/"],
       ["Journal", "Inside Wind Rose", "Why v0.2 adds a second transparent ingress path.", "/blog/wind-rose-ipv6/"],
     ],
@@ -192,6 +194,8 @@ const copy = {
     learnCards: [
       ["指南", "让 Mac 成为网关", "只接入一台设备，不必重做整个局域网。", "/zh-cn/guides/mac-as-router/"],
       ["指南", "让 PS5 通过 Mac", "给游戏机一个可观察的独立出口。", "/zh-cn/guides/ps5-proxy/"],
+      ["指南", "按设备分流 Claude Code", "复用同一服务模版，每台设备仍可选择自己的出口。", "/zh-cn/guides/claude-code-device-rules/"],
+      ["指南", "使用 Pixel VPN 出口", "把手机侧 HTTP / SOCKS5 路径添加为 mihomo 节点。", "/zh-cn/guides/pixel-google-vpn-egress/"],
       ["文档", "安装与验证", "核对未签名安装包，完成谨慎的首次运行。", "/zh-cn/docs/getting-started/"],
       ["日志", "Wind Rose 内部设计", "v0.2 为什么增加第二条透明入口。", "/zh-cn/blog/wind-rose-ipv6/"],
     ],
