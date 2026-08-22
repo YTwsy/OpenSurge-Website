@@ -15,7 +15,7 @@ const labels = {
     github: "GitHub",
     tagline: "Open-source macOS gateway and control plane",
     license: "GPL-3.0-only",
-    package: "Unsigned community packages",
+    package: "Latest release",
   },
   "zh-CN": {
     features: "功能",
@@ -27,7 +27,7 @@ const labels = {
     github: "GitHub",
     tagline: "开源 macOS 网关与控制面",
     license: "GPL-3.0-only",
-    package: "社区未签名安装包",
+    package: "最新版本",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -74,6 +74,9 @@ export function SiteHeader({
           <Link className="language-link" href={alternateHref} hrefLang={locale === "en" ? "zh-CN" : "en"}>
             {copy.language}
           </Link>
+          <a className="language-link" href={REPOSITORY_URL}>
+            {copy.github}
+          </a>
           <a className="button button-small" href={RELEASES_URL}>
             {copy.download}
             <span aria-hidden="true">↗</span>

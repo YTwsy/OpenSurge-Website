@@ -10,6 +10,7 @@
   --paper-warm: #eef1e7;
   --white: #ffffff;
   --rose: #e95b79;
+  --ipv6: #7c4dff;
   --line: rgba(12, 46, 43, 0.14);
   --line-light: rgba(255, 255, 255, 0.16);
   --shadow: 0 24px 80px rgba(5, 39, 34, 0.15);
@@ -152,6 +153,7 @@ a {
 .hero-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 22px;
 }
 
@@ -196,6 +198,19 @@ a {
   background: var(--white);
 }
 
+.button-ghost {
+  border-color: rgba(240, 246, 252, 0.22);
+  color: #f0f6fc;
+  background: #21262d;
+  box-shadow: 0 4px 12px rgba(13, 17, 23, 0.28);
+}
+
+.button-ghost:hover {
+  border-color: rgba(240, 246, 252, 0.38);
+  background: #2d333b;
+  box-shadow: 0 12px 32px rgba(13, 17, 23, 0.34);
+}
+
 .text-link {
   display: inline-flex;
   align-items: center;
@@ -205,13 +220,13 @@ a {
   font-weight: 760;
 }
 
-.text-link span,
-.capability-card a span {
+.text-link > [aria-hidden],
+.capability-card a > [aria-hidden] {
   transition: transform 160ms ease;
 }
 
-.text-link:hover span,
-.capability-card a:hover span {
+.text-link:hover > [aria-hidden],
+.capability-card a:hover > [aria-hidden] {
   transform: translateX(4px);
 }
 
@@ -286,7 +301,7 @@ a {
   text-transform: uppercase;
 }
 
-.eyebrow span {
+.eyebrow > span:first-child {
   width: 24px;
   height: 2px;
   flex: none;
@@ -319,6 +334,13 @@ a {
   color: var(--mint-strong);
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 500;
+}
+
+.hero-copy h1 em.zh-accent {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-synthesis: none;
 }
 
 .hero-intro {
@@ -611,6 +633,14 @@ a {
   font-size: 23px;
 }
 
+.topology-card .topology-ipv6 {
+  margin-top: 16px;
+  color: #297761;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
 .policy-section,
 .evidence-section {
   color: var(--white);
@@ -645,6 +675,16 @@ a {
 
 .ipv6-section {
   background: #eef0e8;
+}
+
+.ipv6-section .ipv6-mark {
+  color: var(--ipv6);
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+:lang(zh) .ipv6-section .ipv6-mark {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
 .dark-copy > p:not(.eyebrow) {

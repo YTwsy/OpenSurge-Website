@@ -14,14 +14,15 @@ const copy = {
     intro:
       "OpenSurge is a Surge-style macOS gateway and control plane powered by mihomo. Route phones, TVs, consoles, and other devices through one observable, recoverable network path.",
     primaryCta: "Download latest release",
+    githubCta: "View on GitHub",
     secondaryCta: "See how the gateway works",
-    packageNote: "Free and open source · Apple Silicon and Intel · unsigned packages",
+    packageNote: "Open source · GitHub · Apple Silicon and Intel",
     heroLabel: "ONE MAC · MANY DEVICES · INDEPENDENT ROUTES",
     status: ["Gateway ready", "TUN active", "Devices observed"],
     proof: [
       ["3", "network topologies"],
       ["1", "auditable control plane"],
-      ["IPv4", "+ experimental IPv6"],
+      ["IPv4 / IPv6", "experimental"],
       ["GPL", "3.0-only"],
     ],
     problemEyebrow: "NETWORK CONTROL, NOT APP SETTINGS",
@@ -52,9 +53,10 @@ const copy = {
       },
     ],
     topologyEyebrow: "START SMALL, SCALE DELIBERATELY",
-    topologyTitle: "One product, three honest network topologies",
+    topologyTitle: "One product, three clearly distinguished network topologies",
     topologyBody:
-      "The setup changes with the network you actually control. OpenSurge explains the operational impact before it changes DHCP, routes, or advertisements.",
+      "The setup changes with the network you actually control. All three topologies start with IPv4 and can optionally enable experimental IPv6 takeover. OpenSurge explains the operational impact before it changes DHCP, routes, or advertisements.",
+    topologyIpv6: "Optional IPv6 takeover",
     topologies: [
       {
         image: "/topologies/same-lan.svg",
@@ -98,25 +100,26 @@ const copy = {
     ],
     finalTitle: "Make the Mac the network control point.",
     finalBody: "Start with one device, verify the path, and expand only when the topology is ready.",
-    finalPrimary: "Download from GitHub",
+    finalPrimary: "Download latest release",
     finalSecondary: "Read the documentation",
   },
   "zh-CN": {
     alternateHref: "/",
     badge: "开源 · macOS 13+",
     titleLead: "把一台 Mac 变成",
-    titleAccent: "全屋网络网关。",
+    titleAccent: "全屋代理网关。",
     intro:
       "OpenSurge 是一套以 mihomo 为代理引擎的 Surge 风格 macOS 网关与控制面。让手机、电视、游戏机和其他设备通过一条可观察、可恢复的网络路径接入。",
     primaryCta: "下载最新版本",
+    githubCta: "在 GitHub 查看",
     secondaryCta: "了解网关如何工作",
-    packageNote: "免费开源 · Apple Silicon 与 Intel · 未签名安装包",
+    packageNote: "开源 · GitHub · Apple Silicon 与 Intel",
     heroLabel: "一台 MAC · 多台设备 · 独立出口",
     status: ["网关已就绪", "TUN 已运行", "设备已观察"],
     proof: [
       ["3", "种网络拓扑"],
       ["1", "套可审计控制面"],
-      ["IPv4", "与实验性 IPv6"],
+      ["IPv4 / IPv6", "实验性"],
       ["GPL", "3.0-only"],
     ],
     problemEyebrow: "控制网络，而不只是修改应用设置",
@@ -147,9 +150,10 @@ const copy = {
       },
     ],
     topologyEyebrow: "从小范围开始，再有计划地扩展",
-    topologyTitle: "同一个产品，三种诚实的网络拓扑",
+    topologyTitle: "同一个产品，三种清楚划分的网络拓扑",
     topologyBody:
-      "配置取决于你真正控制的网络。OpenSurge 会在修改 DHCP、路由或 IPv6 广播之前说明实际影响。",
+      "配置取决于你真正控制的网络。三种拓扑都以 IPv4 为基线，并可按需开启实验性 IPv6 接管。修改 DHCP、路由或 IPv6 广播前，OpenSurge 会说明实际影响。",
+    topologyIpv6: "可选 IPv6 接管",
     topologies: [
       {
         image: "/topologies/same-lan.svg",
@@ -193,10 +197,33 @@ const copy = {
     ],
     finalTitle: "让 Mac 成为家庭网络的控制点。",
     finalBody: "先接入一台设备，验收真实路径，再在拓扑准备好后扩大范围。",
-    finalPrimary: "从 GitHub 下载",
+    finalPrimary: "下载最新版本",
     finalSecondary: "阅读文档",
   },
 } as const;
+
+function GitHubMark() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+      />
+    </svg>
+  );
+}
+
+function markIpv6(text: string) {
+  return text.split(/(IPv6)/i).map((part, index) =>
+    part.toLowerCase() === "ipv6" ? (
+      <span className="ipv6-mark" key={index}>
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+}
 
 export function HomePage({ locale }: { locale: Locale }) {
   const c = copy[locale];
@@ -214,10 +241,15 @@ export function HomePage({ locale }: { locale: Locale }) {
           <div className="hero-grid page-width">
             <div className="hero-copy">
               <p className="eyebrow"><span />{c.badge}</p>
-              <h1>{c.titleLead}<br /><em>{c.titleAccent}</em></h1>
+              <h1>{c.titleLead}<br /><em className={locale === "zh-CN" ? "zh-accent" : undefined}>{c.titleAccent}</em></h1>
               <p className="hero-intro">{c.intro}</p>
               <div className="hero-actions">
                 <a className="button" href={RELEASES_URL}>{c.primaryCta}<span aria-hidden="true">↗</span></a>
+                <a className="button button-ghost" href={REPOSITORY_URL}>
+                  <GitHubMark />
+                  {c.githubCta}
+                  <span aria-hidden="true">↗</span>
+                </a>
                 <Link className="text-link" href={locale === "en" ? "/features/dhcp-gateway/" : "/zh-cn/features/dhcp-gateway/"}>
                   {c.secondaryCta}<span aria-hidden="true">→</span>
                 </Link>
@@ -277,7 +309,12 @@ export function HomePage({ locale }: { locale: Locale }) {
               {c.topologies.map((topology) => (
                 <article className="topology-card" key={topology.title}>
                   <Image src={topology.image} alt="" width={720} height={360} sizes="(max-width: 760px) 92vw, 30vw" />
-                  <div><small>{topology.label}</small><h3>{topology.title}</h3><p>{topology.text}</p></div>
+                  <div>
+                    <small>{topology.label}</small>
+                    <h3>{topology.title}</h3>
+                    <p>{topology.text}</p>
+                    <p className="topology-ipv6">{c.topologyIpv6}</p>
+                  </div>
                 </article>
               ))}
             </div>
@@ -301,10 +338,13 @@ export function HomePage({ locale }: { locale: Locale }) {
         <section className="ipv6-section section-pad">
           <div className="page-width media-split reverse">
             <div className="media-copy dark-copy">
-              <p className="eyebrow dark"><span />{c.ipv6Eyebrow}</p>
+              <p className="eyebrow dark"><span /><span>{markIpv6(c.ipv6Eyebrow)}</span></p>
               <h2>{c.ipv6Title}</h2>
-              <p>{c.ipv6Body}</p>
-              <Link className="text-link" href={ipv6Href}>{c.ipv6Cta}<span aria-hidden="true">→</span></Link>
+              <p>{markIpv6(c.ipv6Body)}</p>
+              <Link className="text-link" href={ipv6Href}>
+                <span>{markIpv6(c.ipv6Cta)}</span>
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
             <div className="rose-visual">
               <Image src="/og.png" alt={locale === "en" ? "Wind Rose IPv6 artwork" : "Wind Rose IPv6 视觉"} width={1280} height={640} sizes="(max-width: 900px) 94vw, 50vw" />
@@ -348,6 +388,11 @@ export function HomePage({ locale }: { locale: Locale }) {
             <div><h2>{c.finalTitle}</h2><p>{c.finalBody}</p></div>
             <div className="hero-actions">
               <a className="button button-light" href={RELEASES_URL}>{c.finalPrimary}<span aria-hidden="true">↗</span></a>
+              <a className="button button-ghost" href={REPOSITORY_URL}>
+                <GitHubMark />
+                {c.githubCta}
+                <span aria-hidden="true">↗</span>
+              </a>
               <Link className="text-link light" href={docsHref}>{c.finalSecondary}<span aria-hidden="true">→</span></Link>
             </div>
           </div>
