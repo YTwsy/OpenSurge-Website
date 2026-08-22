@@ -33,7 +33,7 @@ That command runs ESLint, creates the static export in `out/`, and checks all ge
 
 ## Canonical site URL
 
-The default production origin is `https://opensurge-website.pages.dev`. Set `NEXT_PUBLIC_SITE_URL` at build time when attaching a custom domain:
+The default production origin is `https://opensurge.pages.dev`. Set `NEXT_PUBLIC_SITE_URL` at build time when attaching a custom domain:
 
 ```bash
 NEXT_PUBLIC_SITE_URL=https://opensurge.example pnpm build

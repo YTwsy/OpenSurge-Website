@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const SITE_NAME = "OpenSurge for Mac";
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://opensurge-website.pages.dev"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://opensurge.pages.dev"
 ).replace(/\/$/, "");
 
 export const REPOSITORY_URL = "https://github.com/YTwsy/OpenSurge-for-Mac";
