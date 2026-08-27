@@ -13,11 +13,23 @@ export function homeSchema(locale: Locale) {
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
       name: SITE_NAME,
       alternateName: ["OpenSurge", "OpenSurge for Mac"],
       url: SITE_URL,
       inLanguage: locale,
       description,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      alternateName: "OpenSurge",
+      url: SITE_URL,
+      logo: absoluteUrl("/brand/opensurge-favicon.png"),
+      sameAs: [REPOSITORY_URL],
     },
     {
       "@context": "https://schema.org",

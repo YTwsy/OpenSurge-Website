@@ -85,7 +85,7 @@ export const rootMetadata: Metadata = {
   creator: "OpenSurge contributors",
   publisher: "OpenSurge contributors",
   icons: {
-    icon: "/brand/opensurge-icon.png",
+    icon: "/brand/opensurge-favicon.png",
     apple: "/brand/opensurge-icon.png",
   },
   manifest: "/manifest.webmanifest",
