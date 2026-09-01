@@ -204,15 +204,15 @@ const englishPages: ContentPage[] = [
       "How OpenSurge combines dnsmasq DHCP/DNS, mihomo TUN, macOS packet forwarding, and recovery controls for whole-home routing.",
     intro:
       "A proxy app changes traffic on one computer. OpenSurge lets the Mac take responsibility for downstream devices as a real network gateway, with a topology you choose and a recovery path you can audit.",
-    image: "/screenshots/dashboard.png",
-    imageAlt: "OpenSurge dashboard showing gateway and service status",
+    image: "/screenshots/en/network.png",
+    imageAlt: "OpenSurge Network and DHCP page showing gateway topology and service controls",
     keywords: [
       "macOS DHCP gateway",
       "Mac as router",
       "whole-home proxy gateway",
       "dnsmasq macOS",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "6 min read",
     sections: [
       {
@@ -264,7 +264,7 @@ const englishPages: ContentPage[] = [
       "Route a phone, TV, game console, or VR headset through different mihomo selectors while keeping one auditable OpenSurge gateway.",
     intro:
       "OpenSurge maps stable device identity to source-scoped mihomo rules. A phone can follow the normal rules, a console can use a dedicated selector, and a TV can use a streaming route—all through one gateway process.",
-    image: "/screenshots/devices.png",
+    image: "/screenshots/en/devices.png",
     imageAlt: "OpenSurge device policy interface",
     keywords: [
       "per-device proxy routing",
@@ -272,7 +272,7 @@ const englishPages: ContentPage[] = [
       "Apple TV proxy",
       "mihomo device policy",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "5 min read",
     sections: [
       {
@@ -337,7 +337,7 @@ const englishPages: ContentPage[] = [
       "OpenSurge uses mihomo as its proxy engine and adds the macOS gateway lifecycle, DHCP/DNS, device policy, observability, and recovery around it.",
     intro:
       "mihomo is the proxy engine. OpenSurge is the macOS gateway and control plane that makes that engine usable for an entire downstream network.",
-    image: "/screenshots/policies.png",
+    image: "/screenshots/en/policies.png",
     imageAlt: "OpenSurge policy groups and proxy health interface",
     keywords: [
       "mihomo macOS gateway",
@@ -345,7 +345,7 @@ const englishPages: ContentPage[] = [
       "mihomo TUN Mac",
       "mihomo control plane",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "4 min read",
     sections: [
       {
@@ -397,15 +397,15 @@ const englishPages: ContentPage[] = [
       "Learn how OpenSurge handles downstream IPv6 with RA/SLAAC/RDNSS, a macOS BPF broker, and a patched mihomo userspace path.",
     intro:
       "OpenSurge v0.2 introduces an experimental downstream IPv6 path. It shares mihomo rules and egress with the IPv4 gateway, but it does not pretend that downstream IPv6 packets enter the macOS system TUN.",
-    image: "/og.png",
-    imageAlt: "OpenSurge Wind Rose IPv6 project artwork",
+    image: "/screenshots/en/network.png",
+    imageAlt: "OpenSurge Network and DHCP page with experimental downstream IPv6 controls",
     keywords: [
       "macOS IPv6 gateway",
       "IPv6 transparent proxy Mac",
       "mihomo IPv6 gateway",
       "downstream IPv6 proxy",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "7 min read",
     sections: [
       {
@@ -452,15 +452,15 @@ const englishPages: ContentPage[] = [
       "Start with OpenSurge bypass-router mode, onboard one stable device, and verify gateway, DNS, HTTPS, and TUN evidence layer by layer.",
     intro:
       "The safest first OpenSurge setup changes one client, not the entire household. Keep the router's DHCP service running, give one test device a stable IPv4 identity, and point only that device at the Mac.",
-    image: "/screenshots/dashboard.png",
-    imageAlt: "OpenSurge gateway dashboard used for readiness checks",
+    image: "/screenshots/en/network.png",
+    imageAlt: "OpenSurge Network and DHCP page used to choose a gateway topology",
     keywords: [
       "Mac as router",
       "Mac bypass router",
       "macOS transparent proxy gateway",
       "Mac whole home proxy",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "6 min read",
     sections: [
       {
@@ -512,7 +512,7 @@ const englishPages: ContentPage[] = [
       "Put a PS5 behind OpenSurge, keep local traffic direct, and select a dedicated mihomo egress without configuring an application proxy on the console.",
     intro:
       "A console cannot run the same proxy clients as a Mac or phone. OpenSurge solves that at the network layer: the PS5 sends ordinary IP traffic to the Mac gateway, then device policy chooses the egress.",
-    image: "/screenshots/devices.png",
+    image: "/screenshots/en/devices.png",
     imageAlt: "OpenSurge device policy view with dedicated routing controls",
     keywords: [
       "PS5 proxy through Mac",
@@ -520,7 +520,7 @@ const englishPages: ContentPage[] = [
       "game console proxy gateway",
       "PS5 mihomo",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "5 min read",
     sections: [
       {
@@ -571,7 +571,7 @@ const englishPages: ContentPage[] = [
       "A careful first-run path for the unsigned macOS package, the local Web GUI, bypass-router mode, and downstream client validation.",
     intro:
       "OpenSurge changes real network state, so the first run should be deliberate. Verify the package provenance, open the local control plane, keep the gateway stopped while configuring, and start with one test device.",
-    image: "/screenshots/dashboard.png",
+    image: "/screenshots/en/dashboard.png",
     imageAlt: "OpenSurge Web GUI overview after installation",
     keywords: [
       "install OpenSurge for Mac",
@@ -579,7 +579,7 @@ const englishPages: ContentPage[] = [
       "macOS proxy gateway setup",
       "OpenSurge getting started",
     ],
-    updatedAt: "2026-08-21",
+    updatedAt: "2026-09-01",
     readingTime: "7 min read",
     sections: [
       {
@@ -684,15 +684,16 @@ const englishPages: ContentPage[] = [
       "Use OpenSurge rule sets and an outlet-free Claude Code template to give one downstream device a controlled, independently switchable egress.",
     intro:
       "The current OpenSurge rule library separates what should match from where a match should go. Its built-in Claude Code community example installs four reusable rule sets only after you choose a device and an egress.",
-    image: "/screenshots/devices.png",
-    imageAlt: "OpenSurge rule library and per-device routing controls",
+    image: "/screenshots/en/rule-sets.png",
+    imageAlt: "OpenSurge Rule Library showing reusable rule sets",
+    imageFit: "contain",
     keywords: [
       "Claude Code proxy rules",
       "Claude Code downstream device",
       "OpenSurge rule template",
       "mihomo Claude Code rules",
     ],
-    updatedAt: "2026-08-22",
+    updatedAt: "2026-09-01",
     readingTime: "6 min read",
     sections: [
       {
@@ -986,7 +987,7 @@ const englishPages: ContentPage[] = [
       "Understand OpenSurge Rule, Global, and Direct modes on the gateway Mac, and when the separate HTTP/HTTPS system-proxy compatibility layer should be enabled.",
     intro:
       "OpenSurge has two intentionally separate Mac-local controls: an egress mode for new connections entering its data plane, and an off-by-default system-proxy compatibility option for applications affected by TUN-only DNS conflicts.",
-    image: "/screenshots/devices.png",
+    image: "/screenshots/en/devices.png",
     imageAlt: "OpenSurge device page with Mac-local routing and downstream policy controls",
     keywords: [
       "OpenSurge Mac local routing",
@@ -994,7 +995,7 @@ const englishPages: ContentPage[] = [
       "SafeDNS TUN conflict",
       "Mac Rule Global Direct",
     ],
-    updatedAt: "2026-08-22",
+    updatedAt: "2026-09-01",
     readingTime: "7 min read",
     sections: [
       {
@@ -1079,15 +1080,15 @@ const englishPages: ContentPage[] = [
       "Use subscriptions and local mihomo YAML as OpenSurge sources while preserving their nodes, policy groups, rules, providers, and supported DNS policy.",
     intro:
       "Imported mode is an overlay, not raw pass-through: your mihomo profile contributes its proxy and rule ecosystem, while OpenSurge keeps ownership of the LAN, DNS listener, TUN, controller, runtime paths, and recovery-critical fields.",
-    image: "/screenshots/policies.png",
-    imageAlt: "OpenSurge policy groups created from an imported mihomo source",
+    image: "/screenshots/en/sources.png",
+    imageAlt: "OpenSurge Sources page showing an imported mihomo source and profile workflow",
     keywords: [
       "import mihomo config OpenSurge",
       "mihomo subscription macOS gateway",
       "Clash YAML OpenSurge",
       "imported mihomo profile overlay",
     ],
-    updatedAt: "2026-08-22",
+    updatedAt: "2026-09-01",
     readingTime: "8 min read",
     sections: [
       {
@@ -1170,7 +1171,8 @@ const chinesePages: ContentPage[] = [
       "了解 OpenSurge 如何组合 dnsmasq DHCP/DNS、mihomo TUN、macOS 转发与恢复控制，实现全屋网络接入。",
     intro:
       "普通代理应用只改变一台电脑的流量。OpenSurge 让 Mac 对下游设备承担真正的网关职责，同时把拓扑选择、运行状态和恢复路径放进可审计的控制面。",
-    imageAlt: "展示网关和服务状态的 OpenSurge 控制面板",
+    image: "/screenshots/zh-cn/network.png",
+    imageAlt: "展示网关拓扑与服务控制的 OpenSurge 网络与 DHCP 页面",
     keywords: ["macOS DHCP 网关", "Mac 旁路由", "全屋透明代理", "Mac 当网关"],
     readingTime: "阅读约 6 分钟",
     sections: [
@@ -1222,6 +1224,7 @@ const chinesePages: ContentPage[] = [
       "让手机、电视、游戏机或 VR 设备分别使用不同的 mihomo Selector，同时保持一个可审计的 OpenSurge 网关。",
     intro:
       "OpenSurge 把稳定设备身份映射到按来源生效的 mihomo 规则。手机可以跟随全局规则，游戏机使用专属出口，电视选择流媒体节点，而不需要为每台设备运行代理客户端。",
+    image: "/screenshots/zh-cn/devices.png",
     imageAlt: "OpenSurge 按设备策略界面",
     keywords: ["按设备分流", "PS5 代理网关", "Apple TV 代理", "mihomo 设备策略"],
     readingTime: "阅读约 5 分钟",
@@ -1287,6 +1290,7 @@ const chinesePages: ContentPage[] = [
       "OpenSurge 以 mihomo 为代理引擎，并围绕它提供 macOS 网关生命周期、DHCP/DNS、设备策略、可观测性和恢复控制。",
     intro:
       "mihomo 是代理引擎；OpenSurge 是让这个引擎服务整个下游网络的 macOS 网关与控制面。",
+    image: "/screenshots/zh-cn/policies.png",
     imageAlt: "OpenSurge 策略组与节点健康界面",
     keywords: ["mihomo macOS 网关", "mihomo 全屋代理", "mihomo TUN Mac", "mihomo 控制面"],
     readingTime: "阅读约 4 分钟",
@@ -1339,7 +1343,8 @@ const chinesePages: ContentPage[] = [
       "了解 OpenSurge 如何通过 RA/SLAAC/RDNSS、macOS BPF broker 与 patched mihomo 用户态路径处理下游 IPv6。",
     intro:
       "OpenSurge v0.2 引入实验性下游 IPv6。它与 IPv4 网关共享 mihomo 规则和出口，但不会声称下游 IPv6 数据包进入了 macOS 系统 TUN。",
-    imageAlt: "OpenSurge Wind Rose IPv6 项目视觉",
+    image: "/screenshots/zh-cn/network.png",
+    imageAlt: "包含实验性下游 IPv6 控制的 OpenSurge 网络与 DHCP 页面",
     keywords: ["macOS IPv6 网关", "IPv6 透明代理 Mac", "mihomo IPv6 网关", "下游 IPv6 接管"],
     readingTime: "阅读约 7 分钟",
     sections: [
@@ -1386,7 +1391,8 @@ const chinesePages: ContentPage[] = [
       "从 OpenSurge 旁路由模式开始，只接入一台稳定设备，并逐层验证网关、DNS、HTTPS 与 TUN 证据。",
     intro:
       "最安全的首次配置只改变一台客户端，而不是整个家庭网络。保持主路由 DHCP 开启，给测试设备稳定 IPv4，并只让它指向 Mac。",
-    imageAlt: "用于检查网关就绪状态的 OpenSurge 控制面板",
+    image: "/screenshots/zh-cn/network.png",
+    imageAlt: "用于选择网关拓扑的 OpenSurge 网络与 DHCP 页面",
     keywords: ["Mac 当旁路由", "Mac 当网关", "macOS 透明代理网关", "Mac 全屋代理"],
     readingTime: "阅读约 6 分钟",
     sections: [
@@ -1438,6 +1444,7 @@ const chinesePages: ContentPage[] = [
       "把 PS5 接入 OpenSurge，保持局域网目标直连，并为公网流量选择专属 mihomo 出口，无需在游戏机上配置应用代理。",
     intro:
       "游戏机不能像 Mac 或手机那样运行代理客户端。OpenSurge 在网络层解决这个问题：PS5 把普通 IP 流量交给 Mac 网关，再由设备策略选择出口。",
+    image: "/screenshots/zh-cn/devices.png",
     imageAlt: "带专属出口控制的 OpenSurge 设备策略界面",
     keywords: ["PS5 通过 Mac 代理", "PS5 透明代理", "游戏机代理网关", "PS5 mihomo"],
     readingTime: "阅读约 5 分钟",
@@ -1489,6 +1496,7 @@ const chinesePages: ContentPage[] = [
       "谨慎完成未签名 macOS 安装包、本地 Web GUI、旁路由模式与下游客户端验收。",
     intro:
       "OpenSurge 会修改真实网络状态，因此首次运行应保持克制：验证安装包来源，打开本地控制面，在网关停止状态下完成配置，并从一台测试设备开始。",
+    image: "/screenshots/zh-cn/dashboard.png",
     imageAlt: "安装后的 OpenSurge Web GUI 总览",
     keywords: ["安装 OpenSurge", "OpenSurge 未签名 pkg", "macOS 代理网关配置", "OpenSurge 入门"],
     readingTime: "阅读约 7 分钟",
@@ -1586,7 +1594,8 @@ const chinesePages: ContentPage[] = [
       "使用 OpenSurge 规则集和不带出口的 Claude Code 模版，为指定下游设备配置可独立切换的受控出口。",
     intro:
       "当前 OpenSurge 规则库会把“匹配什么”和“命中后走哪里”分开。内置 Claude Code 社区示例只有在你选定设备与出口后，才会安装四份可复用规则集。",
-    imageAlt: "OpenSurge 规则库与按设备分流控制",
+    image: "/screenshots/zh-cn/rule-sets.png",
+    imageAlt: "展示可复用规则集的 OpenSurge 规则库",
     keywords: ["Claude Code 分流规则", "下游设备 Claude Code", "OpenSurge 规则模版", "mihomo Claude Code 规则"],
     readingTime: "阅读约 6 分钟",
     sections: [
@@ -1862,6 +1871,7 @@ const chinesePages: ContentPage[] = [
       "理解网关 Mac 上的规则、全局与直连模式，以及何时才需要启用独立的 HTTP/HTTPS 系统代理兼容层。",
     intro:
       "OpenSurge 有两套刻意分开的本机控制：一套决定进入数据面的新连接使用什么出口，另一套是默认关闭、用于处理 TUN-only DNS 冲突的系统代理兼容选项。",
+    image: "/screenshots/zh-cn/devices.png",
     imageAlt: "OpenSurge 设备页中的 Mac 本机出口与下游设备策略控制",
     keywords: ["OpenSurge Mac 本机分流", "macOS 系统代理 mihomo", "SafeDNS TUN 冲突", "Mac 规则全局直连"],
     readingTime: "阅读约 7 分钟",
@@ -1947,7 +1957,8 @@ const chinesePages: ContentPage[] = [
       "把订阅或本地 mihomo YAML 作为 OpenSurge 来源，保留节点、策略组、规则、Provider 与受支持的 DNS 策略。",
     intro:
       "Imported 模式是一层 overlay，不是原样透传：mihomo profile 提供代理与规则生态，OpenSurge 继续拥有 LAN、DNS listener、TUN、controller、runtime 路径和恢复关键字段。",
-    imageAlt: "由 imported mihomo 来源生成的 OpenSurge 策略组",
+    image: "/screenshots/zh-cn/sources.png",
+    imageAlt: "展示 imported mihomo 来源与 Profile 工作流的 OpenSurge 来源页面",
     keywords: ["OpenSurge 导入 mihomo 配置", "mihomo 订阅 macOS 网关", "Clash YAML OpenSurge", "imported mihomo overlay"],
     readingTime: "阅读约 8 分钟",
     sections: [

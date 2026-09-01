@@ -29,6 +29,48 @@ const copy = {
     problemTitle: "Proxy the household at the gateway layer",
     problemBody:
       "Devices such as game consoles and TVs cannot run the same proxy client as a Mac. OpenSurge moves routing policy to the Mac gateway so downstream devices use ordinary IP networking.",
+    showcaseEyebrow: "THE CONTROL PLANE, IN CONTEXT",
+    showcaseTitle: "See the network state before you change it",
+    showcaseBody:
+      "The Web GUI keeps topology, sources, policy health, route evidence, and diagnostics in one inspectable workflow.",
+    showcaseNote: "Screenshots use isolated fictional demo data.",
+    showcase: [
+      {
+        image: "network",
+        title: "Network & DHCP",
+        text: "Choose a topology, review the selected configuration, and keep gateway controls explicit.",
+        href: "/features/dhcp-gateway/",
+        alt: "OpenSurge Network and DHCP page showing gateway topology controls",
+      },
+      {
+        image: "sources",
+        title: "Sources & profile overlays",
+        text: "Import subscriptions or local YAML while preserving OpenSurge-owned gateway fields.",
+        href: "/docs/imported-mihomo-config/",
+        alt: "OpenSurge Sources page showing profile import and overlay controls",
+      },
+      {
+        image: "policies",
+        title: "Policies & node health",
+        text: "Inspect selectors, latency checks, providers, and the applied policy state.",
+        href: "/features/mihomo-control-plane/",
+        alt: "OpenSurge Policies and Node Health page",
+      },
+      {
+        image: "connectivity",
+        title: "Routing & connectivity",
+        text: "Compare the selected baseline with matched routes and observed outbound chains.",
+        href: "/features/per-device-routing/",
+        alt: "OpenSurge Routing and Connectivity page showing route evidence",
+      },
+      {
+        image: "diagnostics",
+        title: "Diagnostics & connections",
+        text: "Bring Doctor checks, providers, live connections, recent logs, and operations together.",
+        href: "/docs/getting-started/",
+        alt: "OpenSurge Diagnostics, Connections and Providers page",
+      },
+    ],
     capabilities: [
       {
         number: "01",
@@ -131,6 +173,48 @@ const copy = {
     problemTitle: "在网关层接管需要接入的家庭设备",
     problemBody:
       "游戏机和电视无法像 Mac 一样运行代理客户端。OpenSurge 把路由策略放到 Mac 网关，让下游设备只使用普通 IP 网络。",
+    showcaseEyebrow: "把控制面放回真实上下文",
+    showcaseTitle: "改变网络之前，先看清当前状态",
+    showcaseBody:
+      "Web GUI 把拓扑、来源、策略健康、路由证据与诊断放进一条可检查的操作流程。",
+    showcaseNote: "截图使用隔离的虚构演示数据。",
+    showcase: [
+      {
+        image: "network",
+        title: "网络与 DHCP",
+        text: "选择网络拓扑，核对当前配置，并让网关操作保持明确。",
+        href: "/zh-cn/features/dhcp-gateway/",
+        alt: "OpenSurge 网络与 DHCP 页面中的网关拓扑控制",
+      },
+      {
+        image: "sources",
+        title: "来源与 Profile Overlay",
+        text: "导入订阅或本地 YAML，同时保留 OpenSurge 管理的网关关键字段。",
+        href: "/zh-cn/docs/imported-mihomo-config/",
+        alt: "OpenSurge 代理与规则来源页面中的配置导入和 Overlay 控制",
+      },
+      {
+        image: "policies",
+        title: "策略与节点健康",
+        text: "查看 Selector、延迟检测、Provider 与已经应用的策略状态。",
+        href: "/zh-cn/features/mihomo-control-plane/",
+        alt: "OpenSurge 策略与节点健康页面",
+      },
+      {
+        image: "connectivity",
+        title: "分流与网络连通性",
+        text: "对照所选基线、命中路由与实际观察到的出口链。",
+        href: "/zh-cn/features/per-device-routing/",
+        alt: "OpenSurge 分流与网络连通性页面中的路由证据",
+      },
+      {
+        image: "diagnostics",
+        title: "诊断、连接与 Provider",
+        text: "集中查看 Doctor、Provider、实时连接、近期日志与运维操作。",
+        href: "/zh-cn/docs/getting-started/",
+        alt: "OpenSurge 诊断、连接与 Provider 页面",
+      },
+    ],
     capabilities: [
       {
         number: "01",
@@ -237,6 +321,7 @@ function markIpv6(text: string) {
 
 export function HomePage({ locale }: { locale: Locale }) {
   const c = copy[locale];
+  const screenshotRoot = locale === "en" ? "/screenshots/en" : "/screenshots/zh-cn";
   const docsHref = locale === "en" ? "/docs/getting-started/" : "/zh-cn/docs/getting-started/";
   const ipv6Href = locale === "en" ? "/features/experimental-ipv6/" : "/zh-cn/features/experimental-ipv6/";
   const ps5Href = locale === "en" ? "/guides/ps5-proxy/" : "/zh-cn/guides/ps5-proxy/";
@@ -271,10 +356,10 @@ export function HomePage({ locale }: { locale: Locale }) {
               <div className="app-window">
                 <div className="window-bar"><span /><span /><span /><strong>OpenSurge Control</strong></div>
                 <Image
-                  src="/screenshots/dashboard.png"
+                  src={`${screenshotRoot}/dashboard.png`}
                   alt={locale === "en" ? "OpenSurge whole-home gateway dashboard" : "OpenSurge 全屋网关控制面板"}
-                  width={1408}
-                  height={863}
+                  width={1600}
+                  height={1000}
                   sizes="(max-width: 900px) 94vw, 54vw"
                   priority
                 />
@@ -308,6 +393,35 @@ export function HomePage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
+        <section className="showcase-section section-pad">
+          <div className="page-width">
+            <div className="section-heading split-heading showcase-heading">
+              <div><p className="eyebrow dark"><span />{c.showcaseEyebrow}</p><h2>{c.showcaseTitle}</h2></div>
+              <div><p>{c.showcaseBody}</p><small>{c.showcaseNote}</small></div>
+            </div>
+            <div className="showcase-grid">
+              {c.showcase.map((item, index) => (
+                <Link className={`showcase-card${index === 0 ? " featured" : ""}`} href={item.href} key={item.image}>
+                  <div className="showcase-shot">
+                    <Image
+                      src={`${screenshotRoot}/${item.image}.png`}
+                      alt={item.alt}
+                      width={1600}
+                      height={1000}
+                      sizes={index === 0 ? "(max-width: 820px) 92vw, 64vw" : "(max-width: 820px) 92vw, 44vw"}
+                    />
+                  </div>
+                  <div className="showcase-copy">
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                    <span aria-hidden="true">→</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="topology-section section-pad">
           <div className="page-width">
             <div className="section-heading centered-heading">
@@ -334,7 +448,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         <section className="policy-section section-pad">
           <div className="page-width media-split">
             <div className="media-frame">
-              <Image src="/screenshots/devices.png" alt={locale === "en" ? "Per-device routing controls" : "按设备分流控制"} width={1600} height={1000} sizes="(max-width: 900px) 94vw, 50vw" />
+              <Image src={`${screenshotRoot}/devices.png`} alt={locale === "en" ? "Per-device routing controls" : "按设备分流控制"} width={1600} height={1000} sizes="(max-width: 900px) 94vw, 50vw" />
             </div>
             <div className="media-copy">
               <p className="eyebrow"><span />{c.policyEyebrow}</p>
