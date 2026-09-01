@@ -101,19 +101,19 @@ const copy = {
     topologyIpv6: "Optional IPv6 takeover",
     topologies: [
       {
-        image: "/topologies/same-lan.svg",
+        image: "/topologies/en/same-lan.svg",
         label: "Recommended first",
         title: "Bypass-router mode",
         text: "Keep router DHCP. Manually point selected stable devices at the Mac.",
       },
       {
-        image: "/topologies/dhcp-takeover.svg",
+        image: "/topologies/en/dhcp-takeover.svg",
         label: "Automatic onboarding",
         title: "LAN DHCP takeover",
         text: "Disable router DHCP and let OpenSurge provide device network settings.",
       },
       {
-        image: "/topologies/isolated-lan.svg",
+        image: "/topologies/en/isolated-lan.svg",
         label: "Cleanest boundary",
         title: "Isolated downstream LAN",
         text: "Use a separate AP, SSID, VLAN, or interface behind the Mac.",
@@ -245,19 +245,19 @@ const copy = {
     topologyIpv6: "可选 IPv6 接管",
     topologies: [
       {
-        image: "/topologies/same-lan.svg",
+        image: "/topologies/zh-cn/same-lan.svg",
         label: "首次体验推荐",
         title: "旁路由模式",
         text: "保留主路由 DHCP，只让指定稳定设备手工指向 Mac。",
       },
       {
-        image: "/topologies/dhcp-takeover.svg",
+        image: "/topologies/zh-cn/dhcp-takeover.svg",
         label: "自动接入",
         title: "局域网 DHCP 接管",
         text: "关闭主路由 DHCP，由 OpenSurge 下发设备网络设置。",
       },
       {
-        image: "/topologies/isolated-lan.svg",
+        image: "/topologies/zh-cn/isolated-lan.svg",
         label: "边界最清晰",
         title: "独立下游 LAN",
         text: "在 Mac 下游使用独立 AP、SSID、VLAN 或接口。",

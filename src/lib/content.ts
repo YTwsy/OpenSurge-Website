@@ -899,7 +899,7 @@ const englishPages: ContentPage[] = [
       "Prepare, start, validate, stop, and safely recover a same-LAN OpenSurge DHCP takeover without treating one lease as proof of the whole gateway.",
     intro:
       "Same-LAN DHCP takeover automatically points clients at the Mac for IPv4 gateway and DNS service, but it temporarily removes the main router's DHCP safety net. OpenSurge therefore makes recovery state part of the operation, not a note to remember later.",
-    image: "/topologies/dhcp-takeover.svg",
+    image: "/topologies/en/dhcp-takeover.svg",
     imageAlt: "OpenSurge replacing the main router as the LAN DHCP and gateway service",
     imageFit: "contain",
     keywords: [
@@ -908,7 +908,7 @@ const englishPages: ContentPage[] = [
       "Mac DHCP server",
       "same LAN gateway recovery",
     ],
-    updatedAt: "2026-08-22",
+    updatedAt: "2026-09-02",
     readingTime: "8 min read",
     sections: [
       {
@@ -1792,6 +1792,7 @@ const chinesePages: ContentPage[] = [
       "按准备、启动、验收、停止与恢复的完整顺序接管同一 LAN 的 DHCP，不把一次租约成功误当成整个网关已经可用。",
     intro:
       "局域网 DHCP 接管会自动让客户端把 Mac 用作 IPv4 网关和 DNS，但也会暂时移除主路由 DHCP 这张安全网。因此 OpenSurge 把恢复状态纳入正式操作，而不是留成事后回忆的备注。",
+    image: "/topologies/zh-cn/dhcp-takeover.svg",
     imageAlt: "OpenSurge 在局域网中替代主路由提供 DHCP 与网关服务",
     keywords: ["局域网 DHCP 接管", "OpenSurge 网络恢复", "Mac DHCP 服务器", "同 LAN 网关恢复"],
     readingTime: "阅读约 8 分钟",
